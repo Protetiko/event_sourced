@@ -1,9 +1,9 @@
 
 .PHONY: examples
-examples: example1 example2
+examples: example01 example02
 
-example1:
+example01:
 	@bundle exec ruby ./examples/01_simple_repo/main.rb
 
-example2:
+example02:
 	@bundle exec ruby ./examples/02_simple_mongo_repo/main.rb
