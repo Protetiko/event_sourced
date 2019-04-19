@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'message.rb'
+require 'event_sourced/message'
 
 module EventSourced
   class Event

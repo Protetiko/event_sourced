@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require_relative 'message.rb'
+require 'event_sourced/message'
+
 module EventSourced
   class Command
     include EventSourced::Message
@@ -16,8 +17,6 @@ module EventSourced
     attr_accessor :causation_id
 
     def initialize(command_message)
-      #validate message integrity
-
       self.aggregate_id    = command_message[:aggregate_id]
       self.command_id      = command_message[:command_id]
       self.correlation_id  = command_message[:correlation_id] || self.command_id
