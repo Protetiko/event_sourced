@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EventSourced
   module Models
     Event = Struct.new(
