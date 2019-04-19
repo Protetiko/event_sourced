@@ -9,8 +9,8 @@ module EventSourced
 
     module Support
       def create_indexes
-        result = collection.indexes.create_one(aggregate_id: 1)
-        result = collection.indexes.create_one(aggregate_id: 1, timestamp: 1)
+        collection.indexes.create_one(aggregate_id: 1)
+        collection.indexes.create_one(aggregate_id: 1, timestamp: 1)
       end
     end
 
@@ -25,13 +25,13 @@ module EventSourced
     end
 
     def append_many(events)
-      raise InvalidEventCollection.new unless event.is_a? Array
+      raise InvalidEventCollection, 'asdf' unless event.is_a? Array
       collection.insert_many(events)
     end
 
     def aggregate(aggregate_id)
-      result = events(aggregate_id)
-      result.each do |document|
+      results = stream(aggregate_id)
+      results.each do |document|
       end
     end
 

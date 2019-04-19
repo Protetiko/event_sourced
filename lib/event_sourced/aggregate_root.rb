@@ -36,13 +36,13 @@ module EventSourced
     def handle_event(event)
       event = build_event_object(event_class: event[:event_id], data: event)
 
-      if event
-        #raise InvalidEvent.new unless event.valid?
+      return unless event
 
-        handlers = self.class.event_map[event.event_id]
-        handlers.each {|handler| self.instance_exec(event, &handler) } if handlers
-        #event_repository.append(event)
-      end
+      # raise InvalidEvent.new unless event.valid?
+
+      handlers = self.class.event_map[event.event_id]
+      handlers.each {|handler| self.instance_exec(event, &handler) } if handlers
+      # event_repository.append(event)
     end
 
     def handle_events(events)
@@ -51,7 +51,7 @@ module EventSourced
       end
     end
 
-    def build_event_object(event_class: nil, data: nil, **_)
+    def build_event_object(event_class: nil, data: nil, **_params)
       return nil unless event_class
       return nil unless data
 

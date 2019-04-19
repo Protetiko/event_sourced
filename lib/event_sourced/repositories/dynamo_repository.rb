@@ -8,17 +8,17 @@ module EventSourced
     include EventSourced::Repository
 
     def append(event)
-      raise InvalidEvent.new unless event.is_a? Event
-      result = collection.insert_one(event.to_h)
+      raise InvalidEvent unless event.is_a? Event
+      collection.insert_one(event.to_h)
     end
 
     def append_many(events)
-      raise InvalidEvent.new unless event.is_a? Array
-      result = collection.insert_many(events)
+      raise InvalidEvent unless event.is_a? Array
+      collection.insert_many(events)
     end
 
     def events(aggregate_id)
-      return collection.find(aggregate) # order by timestamp? version?
+      collection.find(aggregate_id) # order by timestamp? version?
     end
 
     def aggregate(aggregate_id)
