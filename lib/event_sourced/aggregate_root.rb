@@ -24,7 +24,7 @@ module EventSourced
     end
 
     def load(aggregate_id)
-      handle_events(event_repository.records(aggregate_id))
+      handle_events(event_repository.stream(aggregate_id))
       self
     end
 
