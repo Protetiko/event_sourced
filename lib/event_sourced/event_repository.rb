@@ -1,5 +1,7 @@
 module EventSourced
   module Repository
+    InvalidEvent = Class.new(StandardError)
+    InvalidEventCollection = Class.new(StandardError)
     NotImplemented = Class.new(StandardError)
     AggregateNotFound = Class.new(StandardError)
 
@@ -15,7 +17,7 @@ module EventSourced
       raise NotImplemented
     end
 
-    def events(aggregate_id)
+    def stream(aggregate_id)
       raise NotImplemented
     end
   end
