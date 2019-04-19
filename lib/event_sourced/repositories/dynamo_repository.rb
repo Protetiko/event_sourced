@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'json'
-require 'event_sourced/repository'
 require_relative 'event.rb'
 
 module EventSourced
