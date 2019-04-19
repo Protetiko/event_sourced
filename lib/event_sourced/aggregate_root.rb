@@ -5,13 +5,18 @@ module EventSourced
     module ClassMethods
       def on(*events, &block)
         events.each do |event|
-          event_map[event] ||= []
-          event_map[event] << block
+          event_map[event.name] ||= []
+          event_map[event.name] << block
+          event_table[event.name] = event
         end
       end
 
       def event_map
         @event_map ||= {}
+      end
+
+      def event_table
+        @event_table ||= {}
       end
     end
 
@@ -29,10 +34,12 @@ module EventSourced
     end
 
     def handle_event(event)
-      if handles_event?(event)
-        raise InvalidEvent.new unless event.valid?
+      event = build_event_object(event_class: event[:event_id], data: event)
 
-        handlers = self.class.event_map[event.class]
+      if event
+        #raise InvalidEvent.new unless event.valid?
+
+        handlers = self.class.event_map[event.event_id]
         handlers.each {|handler| self.instance_exec(event, &handler) } if handlers
         #event_repository.append(event)
       end
@@ -44,10 +51,17 @@ module EventSourced
       end
     end
 
+    def build_event_object(event_class: nil, data: nil, **_)
+      return nil unless event_class
+      return nil unless data
+
+      self.class.event_table[event_class]&.new(data)
+    end
+
     private
 
     def handles_event?(event)
-      self.class.event_map.keys.include? event.class
+      self.class.event_map.keys.include? event
     end
 
     def event_repository
