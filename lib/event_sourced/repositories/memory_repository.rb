@@ -27,7 +27,7 @@ module EventSourced
       end
     end
 
-    def records(aggregate_id)
+    def stream(aggregate_id)
       store[aggregate_id]
     end
 
