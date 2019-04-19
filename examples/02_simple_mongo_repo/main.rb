@@ -2,73 +2,29 @@
 
 require 'awesome_print'
 require 'event_sourced'
-require_relative 'commands.rb'
-require_relative 'events.rb'
-require_relative 'inventory_command_handler.rb'
-require_relative 'inventory_item.rb'
+require_relative '../_common/commands.rb'
+require_relative '../_common/events.rb'
+require_relative '../_common/inventory_command_handler.rb'
+require_relative '../_common/inventory_item.rb'
+require_relative '../_common/command_messages.rb'
+
+Mongo::Logger.logger.level = Logger::WARN
 
 event_repository   = EventSourced::MongoRepository.new(collection: 'item-events')
 command_repository = EventSourced::MongoRepository.new(collection: 'item-commands')
 command_handler    = InventoryCommandHandler.new(event_repository, command_repository)
 
-base_command = {
-  aggregate_id: "InventoryItem@4f6n3o2c3m43n2cjr2",
-  meta_data: {
-    user_id: "the-user-id",
-  },
-  version: 1,
-}
+event_repository.drop!
+command_repository.drop!
 
-aggregate_id = 'InventoryItem@4f6n3o2c3m43n2cjr2'
-
-create_item_command_message = {
-  aggregate_id: aggregate_id,
-  command_type: "create_inventory_item",
-  data: {
-    description: "Fine wool blanket",
-    count: 50,
-    field_not_handled_by_service: "this will not appear in commands or events"
-  },
-  meta_data: {
-    user_id: "the-user-id",
-  },
-  correlation_id: "the-correlation-id",
-  version: 1,
-}
-
-restock_item_command_message = {
-  aggregate_id: aggregate_id,
-  command_type: "restock_inventory_item",
-  data: {
-    count: 200,
-  },
-  meta_data: {
-    user_id: "the-user-id",
-  },
-  correlation_id: "the-correlation-id-2",
-  version: 1,
-}
-
-withdraw_item_command_message = {
-  aggregate_id: aggregate_id,
-  command_type: "withdraw_inventory_item",
-  data: {
-    count: 2,
-  },
-  meta_data: {
-    user_id: "the-user-id",
-  },
-  correlation_id: "the-correlation-id-2",
-  version: 1,
-}
-
-command_handler.handle(CreateInventoryItem.new(create_item_command_message))
-10.times { command_handler.handle(WithdrawInventoryItem.new(withdraw_item_command_message)) }
-command_handler.handle(RestockInventoryItem.new(restock_item_command_message))
-command_handler.handle(WithdrawInventoryItem.new(withdraw_item_command_message.merge({data:{count:240}})))
+command_handler.handle(CreateInventoryItem.new(CREATE_ITEM_COMMAND_MESSAGE))
+10.times { command_handler.handle(WithdrawInventoryItem.new(WITHDRAW_ITEM_COMMAND_MESSAGE)) }
+command_handler.handle(RestockInventoryItem.new(RESTOCK_ITEM_COMMAND_MESSAGE))
+command_handler.handle(UpdateInventoryItem.new(UPDATE_ITEM_COMMAND_MESSAGE))
+command_handler.handle(WithdrawInventoryItem.new(WITHDRAW_ITEM_COMMAND_MESSAGE.merge({data:{count:240}})))
 
 command_repository.dump
 event_repository.dump
 
 item = InventoryItem.new(event_repository)
-ap item.load(aggregate_id).to_h
+ap item.load(AGGREGATE_ID).to_h
