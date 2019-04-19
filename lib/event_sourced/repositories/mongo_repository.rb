@@ -9,8 +9,8 @@ module EventSourced
 
     module Support
       def create_indexes
-        result = collection.indexes.create_one({aggregate_id: 1})
-        result = collection.indexes.create_one({aggregate_id: 1, timestamp: 1})
+        result = collection.indexes.create_one(aggregate_id: 1)
+        result = collection.indexes.create_one(aggregate_id: 1, timestamp: 1)
       end
     end
 
@@ -20,18 +20,14 @@ module EventSourced
     end
 
     def append(event)
-      #raise InvalidEvent.new unless event.is_a? EventSourced::Message
-      result = collection.insert_one(event.to_h)
+      # raise InvalidEvent.new unless event.is_a? EventSourced::Message
+      collection.insert_one(event.to_h)
     end
 
     def append_many(events)
       raise InvalidEventCollection.new unless event.is_a? Array
-      result = collection.insert_many(events)
+      collection.insert_many(events)
     end
-
-    # def events(aggregate_id)
-    #   return collection.find(aggregate_id) # order by timestamp
-    # end
 
     def aggregate(aggregate_id)
       result = events(aggregate_id)
@@ -39,16 +35,12 @@ module EventSourced
       end
     end
 
-    def raw_stream(aggregate_id)
-      collection.find(aggregate_id: aggregate_id).map {|r| r.to_h.symbolize_keys! }
-    end
-
     def stream(aggregate_id)
-      collection.find(aggregate_id: aggregate_id).map {|r| r.to_h.symbolize_keys! }
+      collection.find(aggregate_id: aggregate_id).sort(timestamp: -1).map {|r| r.to_h.symbolize_keys! }
     end
 
     def dump
-      collection.find.each_with_index do |record, i|
+      collection.find.each do |record|
         puts JSON.pretty_generate(record.to_h).green
       end
     end
@@ -60,7 +52,7 @@ module EventSourced
     private
 
     def client
-      @client ||= Mongo::Client.new([ '127.0.0.1:27017' ], :database => @database)
+      @client ||= Mongo::Client.new(['127.0.0.1:27017'], database: @database)
     end
 
     def db
