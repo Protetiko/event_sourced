@@ -3,3 +3,12 @@ AllCops:
 
 Metrics/LineLength:
   Max: 120
+
+Style/SafeNavigation:
+  Enabled: false
+
+Layout/SpaceInsideBlockBraces:
+  SpaceBeforeBlockParameters: false
+
+Style/Documentation:
+  Enabled: false
