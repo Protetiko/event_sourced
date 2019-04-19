@@ -37,4 +37,5 @@ Gem::Specification.new do |spec|
 
   spec.add_runtime_dependency "mongo", "~> 2.6.2"
   spec.add_runtime_dependency "dry-validation", "~> 0.12"
+  spec.add_runtime_dependency "activesupport", "~> 5.2.1"
 end
