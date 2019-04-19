@@ -26,8 +26,8 @@ module EventSourced
       self.command_version = 1
       self.meta_data       = command_message[:meta_data]
 
-      self.instance_exec(command_message[:data], &self.class._builder)
-
+      # Set the internal `attributes` variable
+      self.instance_exec(command_message[:data], &self.class._builder) if &self.class._builder
       self.data            = attributes
     end
 
