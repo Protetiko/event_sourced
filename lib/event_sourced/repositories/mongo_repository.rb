@@ -29,9 +29,9 @@ module EventSourced
       result = collection.insert_many(events)
     end
 
-    def events(aggregate_id)
-      return collection.find(aggregate_id) # order by timestamp
-    end
+    # def events(aggregate_id)
+    #   return collection.find(aggregate_id) # order by timestamp
+    # end
 
     def aggregate(aggregate_id)
       result = events(aggregate_id)
@@ -39,15 +39,22 @@ module EventSourced
       end
     end
 
+    def raw_stream(aggregate_id)
+      collection.find(aggregate_id: aggregate_id).map {|r| r.to_h.symbolize_keys! }
+    end
+
     def stream(aggregate_id)
-      collection.find(aggregate_id: aggregate_id)
+      collection.find(aggregate_id: aggregate_id).map {|r| r.to_h.symbolize_keys! }
     end
 
     def dump
       collection.find.each_with_index do |record, i|
-        puts i
-        puts record.to_h
+        puts JSON.pretty_generate(record.to_h).green
       end
+    end
+
+    def drop!
+      collection.drop
     end
 
     private

@@ -13,9 +13,9 @@ module EventSourced
     def append(record)
       aggregate_id = record.aggregate_id
       if store[aggregate_id]
-        store[aggregate_id] << record
+        store[aggregate_id] << record.to_h
       else
-        store[aggregate_id] = [record]
+        store[aggregate_id] = [record.to_h]
       end
     end
 
@@ -38,6 +38,10 @@ module EventSourced
           puts JSON.pretty_generate record.to_h
         end
       end
+    end
+
+    def drop!
+      @store = {}
     end
 
     private

@@ -20,5 +20,9 @@ module EventSourced
     def stream(aggregate_id)
       raise NotImplemented
     end
+
+    def drop!
+      raise NotImplemented
+    end
   end
 end
