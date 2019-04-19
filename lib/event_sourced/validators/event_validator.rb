@@ -4,7 +4,7 @@ require 'dry-validation'
 
 module EventSourced
   module Validators
-    CommandValidator = Dry::Validation.Schema do
+    EventValidator = Dry::Validation.Schema do
       required(:command_id).filled?(:str?)
       required(:aggregate_id).filled?(:str?)
       required(:command_type).filled?(:str?)
