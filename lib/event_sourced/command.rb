@@ -22,7 +22,7 @@ module EventSourced
       self.correlation_id  = command_message[:correlation_id] || self.command_id
       self.causation_id    = command_message[:causation_id] || self.command_id
       self.command_type    = self.class.name
-      self.timestamp       = Time.now
+      self.timestamp       = Time.now.iso8601
       self.command_version = 1
       self.meta_data       = command_message[:meta_data]
 
