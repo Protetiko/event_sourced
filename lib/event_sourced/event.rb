@@ -6,6 +6,8 @@ module EventSourced
   class Event
     include EventSourced::Message
 
+    EventValidationFailed = Class.new(StandardError)
+
     attr_accessor :command_id
     attr_accessor :aggregate_id
     attr_accessor :event_id
@@ -17,8 +19,12 @@ module EventSourced
     attr_accessor :causation_id
 
     def initialize(event_message = {})
-      self.command_id      = event_message[:command_id]
+      result = Validators::EventValidator.call(event_message)
+      raise(EventValidationFailed, result.errors) if result.failure?
+      event_message = result.output
+
       self.aggregate_id    = event_message[:aggregate_id]
+      self.command_id      = event_message[:command_id]
       self.correlation_id  = event_message[:correlation_id] || self.command_id
       self.causation_id    = self.command_id
       self.event_id        = self.class.name

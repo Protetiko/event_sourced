@@ -6,6 +6,8 @@ module EventSourced
   class Command
     include EventSourced::Message
 
+    CommandValidationFailed = Class.new(StandardError)
+
     attr_accessor :command_id
     attr_accessor :aggregate_id
     attr_accessor :command_type
@@ -16,7 +18,11 @@ module EventSourced
     attr_accessor :correlation_id
     attr_accessor :causation_id
 
-    def initialize(command_message)
+    def initialize(command_message = {})
+      result = Validators::CommandValidator.call(command_message)
+      raise(CommandValidationFailed, result.errors) if result.failure?
+      command_message = result.output
+
       self.aggregate_id    = command_message[:aggregate_id]
       self.command_id      = command_message[:command_id] || UUID.generate
       self.correlation_id  = command_message[:correlation_id] || self.command_id
