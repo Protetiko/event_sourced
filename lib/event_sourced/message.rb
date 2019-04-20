@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "event_sourced/utils/attributes"
-require "event_sourced/utils/validator"
+require "event_sourced/utils/validation"
 
 module EventSourced
   module Message
