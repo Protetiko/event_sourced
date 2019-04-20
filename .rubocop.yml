@@ -3,7 +3,7 @@ AllCops:
 
 Metrics/BlockLength:
   Max: 50
-  exclude: 
+  Exclude: 
     - '**/*.gemspec'
 
 Metrics/LineLength:
