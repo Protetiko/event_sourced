@@ -18,7 +18,7 @@ module EventSourced
 
     def initialize(command_message)
       self.aggregate_id    = command_message[:aggregate_id]
-      self.command_id      = command_message[:command_id]
+      self.command_id      = command_message[:command_id] || UUID.generate
       self.correlation_id  = command_message[:correlation_id] || self.command_id
       self.causation_id    = command_message[:causation_id] || self.command_id
       self.command_type    = self.class.name

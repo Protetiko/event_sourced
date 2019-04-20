@@ -53,8 +53,6 @@ module EventSourced
       if handles_command?(command)
         raise InvalidCommand.new unless command.valid?
 
-        command.command_id = UUID.generate
-
         handlers = self.class.command_map[command.class]
         handlers.each {|handler| self.instance_exec(command, &handler) } if handlers
 
