@@ -36,7 +36,7 @@ module EventSourced
     end
 
     def stream(aggregate_id)
-      collection.find(aggregate_id: aggregate_id).sort(timestamp: -1).map {|r| r.to_h.symbolize_keys! }
+      collection.find(aggregate_id: aggregate_id).sort(timestamp: 1).map {|r| r.to_h.symbolize_keys! }
     end
 
     def dump
