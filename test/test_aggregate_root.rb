@@ -51,11 +51,11 @@ class AggregateRootTest < MiniTest::Test
   let(:aggregate_root) { MockCommandHandler.new(repository) }
 
   def test_it_handles_single_event
-    aggregate_root.handle_event(MockEvent.new("1", {a: 'b'}))
+    aggregate_root.handle_event(MockEvent.new('1', {a: 'b'}))
   end
 
   def test_it_handles_multiple_events
-    aggregate_root.handle_events([MockEvent.new("1", {a: 'b'}), MockEvent.new("1", {a: 'c'}), OtherMockEvent.new])
+    aggregate_root.handle_events([MockEvent.new('1', {a: 'b'}), MockEvent.new('1', {a: 'c'}), OtherMockEvent.new])
   end
 
   def test_it_handle_events_with_validation

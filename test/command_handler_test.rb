@@ -56,11 +56,11 @@ class CommandHandlerTest < MiniTest::Test
   let(:command_handler) { MockCommandHandler.new(event_repository, command_repository) }
 
   def test_it_handles_single_command
-    command_handler.handle_command(MockCommand.new("1", {a: 'b'}))
+    command_handler.handle_command(MockCommand.new('1', {a: 'b'}))
   end
 
   def test_it_handles_multiple_commands
-    command_handler.handle_commands([MockCommand.new("1", {a: 'b'}), MockCommand.new("1", {a: 'c'}), OtherMockCommand.new])
+    command_handler.handle_commands([MockCommand.new('1', {a: 'b'}), MockCommand.new('1', {a: 'c'}), OtherMockCommand.new])
   end
 
   def test_it_handle_commands_with_validation

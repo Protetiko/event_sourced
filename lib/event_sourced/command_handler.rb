@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require 'securerandom'
-require "event_sourced/validators/command_validator"
-require "event_sourced/utils/uuid"
+require 'event_sourced/validators/command_validator'
+require 'event_sourced/utils/uuid'
 
 module EventSourced
   InvalidCommand = Class.new(StandardError)
