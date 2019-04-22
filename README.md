@@ -1,3 +1,5 @@
+[![Codeship Status for Protetiko/event_sourced](https://app.codeship.com/projects/1f5e5290-4725-0137-0540-6abbce7fedef/status?branch=master)](https://app.codeship.com/projects/337370)
+
 # EventSourced
 
 Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/event_sourced`. To experiment with that code, run `bin/console` for an interactive prompt.
