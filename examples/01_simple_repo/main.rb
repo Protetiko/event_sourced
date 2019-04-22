@@ -20,4 +20,8 @@ command_repository = EventSourced::Repository.new(
   event_store: EventSourced::EventStores::MemoryEventStore.new
 )
 
-run_examples(command_repository, event_repository)
+run_examples(
+  example_description: "Memory Repository",
+  command_repository: command_repository,
+  event_repository: event_repository,
+)

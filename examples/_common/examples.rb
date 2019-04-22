@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
-def run_examples(command_repository, event_repository)
+def run_examples(command_repository:, event_repository:, example_description:)
+  puts "\n#### Running examples for: #{example_description}".purple
+
   command_handler    = InventoryCommandHandler.new(event_repository, command_repository)
 
   command_handler.handle(CreateInventoryItem.new(CREATE_ITEM_COMMAND_MESSAGE))
@@ -9,10 +11,10 @@ def run_examples(command_repository, event_repository)
   command_handler.handle(UpdateInventoryItem.new(UPDATE_ITEM_COMMAND_MESSAGE))
   command_handler.handle(WithdrawInventoryItem.new(WITHDRAW_ITEM_COMMAND_MESSAGE.merge({ data: { count: 230 } })))
 
-  puts "\n## Should dump all commands:".white
-  command_repository.dump
-  puts "\n## Should dump all events:".white
-  event_repository.dump
+  # puts "\n## Should dump all commands:".white
+  # command_repository.dump
+  # puts "\n## Should dump all events:".white
+  # event_repository.dump
 
   puts "\n## Should produce the same result:".white
   item = InventoryItem.new(event_repository)
