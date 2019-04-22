@@ -1,9 +1,16 @@
 # frozen_string_literal: true
 
 require 'event_sourced/message'
+require 'event_sourced/factory'
 
 module EventSourced
   class Command
+    Factory = Class.new(EventSourced::Factory)
+
+    def self.inherited(base)
+      Factory.register(base.name, base)
+    end
+
     include EventSourced::Message
 
     CommandValidationFailed = Class.new(StandardError)
