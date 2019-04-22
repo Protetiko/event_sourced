@@ -41,8 +41,7 @@ module EventSourced
 
     def handle_raw_command(message)
       if Validators::CommandValidator.call(message).success?
-        #convert raw message to command and call:
-        #command = ...
+        command = Command::Factory.build(message)
         handle_command(command)
       else
         raise InvalidCommand.new
@@ -66,11 +65,12 @@ module EventSourced
       end
     end
 
-    private
 
     def handles_command?(command)
       self.class.command_map.keys.include? command.class
     end
+
+    private
 
     def event_repository
       @event_repository
