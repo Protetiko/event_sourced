@@ -9,12 +9,12 @@ module EventSourced
         @factory_registry ||= {}
       end
 
-      def build(type, data)
+      def build(type, data = {})
         klass = get_template(type)
         return klass && klass.new(data)
       end
 
-      def build!(type, data)
+      def build!(type, data = {})
         klass = get_template!(type)
         return klass.new(data)
       end
