@@ -5,8 +5,7 @@ require 'event_sourced/aggregate_root'
 
 # The Inventory Item aggregate root
 
-class InventoryItem
-  include EventSourced::AggregateRoot
+class InventoryItem < EventSourced::AggregateRoot
 
   attr_reader :id
   attr_reader :description

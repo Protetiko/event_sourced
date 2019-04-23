@@ -1,28 +1,10 @@
 # frozen_string_literal: true
 
+require 'event_sourced/utils/message_handler'
+
 module EventSourced
-  module AggregateRoot
-    module ClassMethods
-      def on(*events, &block)
-        events.each do |event|
-          event_map[event.name] ||= []
-          event_map[event.name] << block
-          event_table[event.name] = event
-        end
-      end
-
-      def event_map
-        @event_map ||= {}
-      end
-
-      def event_table
-        @event_table ||= {}
-      end
-    end
-
-    def self.included(base)
-      base.extend(ClassMethods)
-    end
+  class AggregateRoot
+    include EventSourced::MessageHandler
 
     def initialize(repository)
       @event_repository = repository
@@ -37,20 +19,18 @@ module EventSourced
       return self
     end
 
-    def apply_raw_event(event)
-      event = build_event_object(event_class: event[:type], data: event)
+    def apply_raw_event(raw_event)
+      event = build_event_object(raw_event)
 
       return unless event
 
-      handlers = self.class.event_map[event.type]
-      handlers.each {|handler| self.instance_exec(event, &handler) } if handlers
+      handle_message(event)
     end
 
     def apply_event(event)
-      return unless handles_event?(event.type)
+      return unless handles_event?(event)
 
-      handlers = self.class.event_map[event.type]
-      handlers.each {|handler| self.instance_exec(event, &handler) } if handlers
+      handle_message(event)
     end
 
     def apply_events(events)
@@ -59,18 +39,17 @@ module EventSourced
       end
     end
 
-    def build_event_object(event_class: nil, data: nil, **_params)
-      return nil unless event_class
-      return nil unless data
+    def build_event_object(raw_event)
+      return nil unless raw_event
 
-      self.class.event_table[event_class]&.new(data)
+      EventSourced::Event::Factory.build(raw_event[:type], raw_event)
+    end
+
+    def handles_event?(event)
+      self.class.handles_message?(event)
     end
 
     private
-
-    def handles_event?(event)
-      self.class.event_map.keys.include? event
-    end
 
     def event_repository
       @event_repository
