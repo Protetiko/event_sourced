@@ -29,25 +29,33 @@ module EventSourced
     end
 
     def load(aggregate_id)
-      handle_events(event_repository.stream(aggregate_id))
-      self
+      load_from_events(event_repository.stream(aggregate_id))
     end
 
-    def handle_event(event)
-      event = build_event_object(event_class: event[:event_id], data: event)
+    def load_from_events(events)
+      apply_events(events)
+      return self
+    end
+
+    def apply_raw_event(event)
+      event = build_event_object(event_class: event[:type], data: event)
 
       return unless event
 
-      # raise InvalidEvent.new unless event.valid?
-
-      handlers = self.class.event_map[event.event_id]
+      handlers = self.class.event_map[event.type]
       handlers.each {|handler| self.instance_exec(event, &handler) } if handlers
-      # event_repository.append(event)
     end
 
-    def handle_events(events)
+    def apply_event(event)
+      return unless handles_event?(event.type)
+
+      handlers = self.class.event_map[event.type]
+      handlers.each {|handler| self.instance_exec(event, &handler) } if handlers
+    end
+
+    def apply_events(events)
       events.each do |event|
-        handle_event(event)
+        apply_event(event)
       end
     end
 

@@ -7,3 +7,7 @@ example01:
 
 example02:
 	@bundle exec ruby ./examples/02_simple_mongo_repo/main.rb
+
+.PHONY: test
+test:
+	@bundle exec rake test
