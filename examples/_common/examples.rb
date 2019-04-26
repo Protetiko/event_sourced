@@ -29,8 +29,7 @@ def run_examples(command_repository:, event_repository:, example_description:)
   ap EventSourced::Command::Factory.for('NibblePuddle')
   ap EventSourced::Event::Factory.build('NibblePuddle', INVENTORY_ITEM_CREATED)
 
-
   puts "\n## Should raise exception:".white
   EventSourced::Command::Factory.for!('NibblePuddle') rescue ap "Exception: NibblePuddle not found"
   EventSourced::Event::Factory.build!('NibblePuddle', INVENTORY_ITEM_CREATED).to_h rescue ap "Exception: NibblePuddle not found"
-  end
+end

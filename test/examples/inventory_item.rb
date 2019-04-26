@@ -2,8 +2,10 @@
 
 require 'event_sourced/aggregate_root'
 
-
-# The Inventory Item aggregate root
+require_relative 'inventory_item/commands.rb'
+require_relative 'inventory_item/events.rb'
+require_relative 'inventory_item/inventory_command_handler.rb'
+require_relative 'inventory_item/messages.rb'
 
 class InventoryItem < EventSourced::AggregateRoot
 
