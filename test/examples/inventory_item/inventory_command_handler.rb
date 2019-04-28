@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-class InventoryCommandHandler
-  include EventSourced::CommandHandler
+class InventoryCommandHandler < EventSourced::CommandHandler
 
   on CreateInventoryItem do |command|
     apply InventoryItemCreated.new(command.to_h)
