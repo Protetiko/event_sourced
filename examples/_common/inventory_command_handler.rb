@@ -2,12 +2,16 @@
 
 require_relative 'inventory_item.rb'
 
-class InventoryCommandHandler
-  include EventSourced::CommandHandler
+class InventoryCommandHandler < EventSourced::CommandHandler
 
   #aggregate_root InventoryItem
 
   on CreateInventoryItem do |command|
+    # repository.create_aggregate(
+    #   aggregate_id: GenerateAggregateID,
+    #   aggregate_type: command.type,
+    # )
+
     apply InventoryItemCreated.new(command.to_h)
     apply InventoryItemRestocked.new(command.to_h) if command.count > 0
   end

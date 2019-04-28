@@ -3,27 +3,13 @@
 require 'securerandom'
 require 'event_sourced/validators/command_validator'
 require 'event_sourced/utils/uuid'
+require 'event_sourced/utils/message_handler'
 
 module EventSourced
   InvalidCommand = Class.new(StandardError)
 
-  module CommandHandler
-    module ClassMethods
-      def on(*commands, &block)
-        commands.each do |command|
-          command_map[command] ||= []
-          command_map[command] << block
-        end
-      end
-
-      def command_map
-        @command_map ||= {}
-      end
-    end
-
-    def self.included(base)
-      base.extend(ClassMethods)
-    end
+  class CommandHandler
+    include EventSourced::MessageHandler
 
     def initialize(event_repository, command_repository)
       @event_repository = event_repository
@@ -52,8 +38,7 @@ module EventSourced
       if handles_command?(command)
         raise InvalidCommand.new unless command.valid?
 
-        handlers = self.class.command_map[command.class]
-        handlers.each {|handler| self.instance_exec(command, &handler) } if handlers
+        handle_message(command)
 
         command_repository.append(command)
       end
@@ -67,7 +52,7 @@ module EventSourced
 
 
     def handles_command?(command)
-      self.class.command_map.keys.include? command.class
+      self.class.handles_message?(command)
     end
 
     private
