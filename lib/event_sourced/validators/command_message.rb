@@ -11,7 +11,7 @@ module EventSourced
           required(:type).filled(:str?)
           optional(:data).filled(:hash?)
           optional(:meta_data).filled(:hash?)
-          optional(:timestamp).filled(:date?)
+          optional(:timestamp).filled(:str?)
         end
       )
     end
