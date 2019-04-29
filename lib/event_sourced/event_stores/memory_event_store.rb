@@ -3,7 +3,7 @@
 module EventSourced
   module EventStores
     class MemoryEventStore
-      def initialize(config = {})
+      def initialize(_config = {})
         @store = {}
       end
 
@@ -29,11 +29,11 @@ module EventSourced
       end
 
       def all
-        store.to_a.map {|i, j| j }.flatten
+        store.to_a.map {|_, j| j }.flatten
       end
 
       def destroy_all!
-        store = {}
+        store.clear
       end
 
       def destroy_aggregate!(aggregate_id)

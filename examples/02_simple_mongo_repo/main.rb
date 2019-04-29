@@ -26,7 +26,7 @@ event_repository.drop_all!
 command_repository.drop_all!
 
 run_examples(
-  example_description: "MongoDB Repository",
+  example_description: 'MongoDB Repository',
   command_repository: command_repository,
   event_repository: event_repository,
 )

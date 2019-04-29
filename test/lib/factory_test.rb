@@ -52,7 +52,7 @@ class FactoryTest < MiniTest::Test
   def test_it_returns_instance_of_class
     assert_instance_of Item1, ItemBase::Factory.build('Item1')
     assert_instance_of Item2, ItemBase::Factory.build('Item2', {})
-    assert_instance_of Item3, ItemBase::Factory.build('Item3', { field: "string" })
+    assert_instance_of Item3, ItemBase::Factory.build('Item3', { field: 'string' })
     assert_instance_of Item4, ItemBase::Factory.build('Item4')
   end
 end
