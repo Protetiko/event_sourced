@@ -43,12 +43,12 @@ WITHDRAW_ITEM_COMMAND_MESSAGE = BASE_COMMAND.merge(
 )
 
 INVENTORY_ITEM_CREATED = BASE_COMMAND.merge(
-  command_id:     "d6da1b4b-9d7c-4b84-941f-1bbb595403a3",
-  type:           "InventoryItemCreated",
-  timestamp:      "2019-04-21T12:53:09+02:00",
-  correlation_id: "the-correlation-id",
-  causation_id:   "d6da1b4b-9d7c-4b84-941f-1bbb595403a3",
+  command_id:     'd6da1b4b-9d7c-4b84-941f-1bbb595403a3',
+  type:           'InventoryItemCreated',
+  timestamp:      '2019-04-21T12:53:09+02:00',
+  correlation_id: 'the-correlation-id',
+  causation_id:   'd6da1b4b-9d7c-4b84-941f-1bbb595403a3',
   data: {
-    description: "Fine wool blanket"
+    description: 'Fine wool blanket'
   },
 )
