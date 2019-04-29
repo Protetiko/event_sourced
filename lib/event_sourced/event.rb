@@ -34,7 +34,11 @@ module EventSourced
       self.correlation_id  = event_message[:correlation_id] || self.command_id
       self.causation_id    = self.command_id
       self.type            = self.class.name
-      self.timestamp       = event_message[:timestamp] || Time.now.iso8601
+
+      timestamp = event_message[:timestamp] || DateTime.now
+      timestamp = DateTime.parse(timestamp) if timestamp.is_a?(String)
+      self.timestamp       = timestamp
+
       self.sequence        = event_message[:sequence]
       self.version         = event_message[:version] || 1
       self.meta_data       = event_message[:meta_data]
@@ -48,7 +52,7 @@ module EventSourced
         aggregate_id:    aggregate_id,
         command_id:      command_id,
         type:            type,
-        timestamp:       timestamp,
+        timestamp:       timestamp.iso8601,
         correlation_id:  correlation_id,
         causation_id:    causation_id,
         sequence:        sequence,

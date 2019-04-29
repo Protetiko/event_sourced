@@ -36,7 +36,7 @@ module EventSourced
 
     def stream(aggregate_id)
       raw_stream(aggregate_id).map do |record|
-        @factory.build(record[:type], record)
+        @factory.build!(record[:type], record)
       end
     end
 

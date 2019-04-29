@@ -34,6 +34,7 @@ class FullIntegrationTest < MiniTest::Test
 
     assert_equal 1, command_stream.size
     assert_equal command.to_h.sort, command_stream.last.to_h.sort
+    assert_equal CreateInventoryItem, command_stream.last.class
 
     assert_equal 2, event_stream.size
     assert_equal InventoryItemCreated, event_stream.first.class
