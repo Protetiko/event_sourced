@@ -8,12 +8,10 @@ module EventSourced
     Factory = Class.new(EventSourced::Factory)
 
     def self.inherited(base)
-      Factory.register(base.name, base)
+      Factory.register(base.name.split('::').last, base)
     end
 
     include EventSourced::Message
-
-    CommandValidationFailed = Class.new(StandardError)
 
     attr_accessor :command_id
     attr_accessor :aggregate_id
@@ -26,16 +24,14 @@ module EventSourced
     attr_accessor :causation_id
 
     def initialize(command_message = {})
-      result = Validators::CommandValidator.call(command_message)
-      raise(CommandValidationFailed, result.errors) if result.failure?
-      command_message = result.output
+      command_message = Validators::CommandMessage.validate!(command_message)
 
       self.aggregate_id    = command_message[:aggregate_id]
       self.command_id      = command_message[:command_id] || UUID.generate
       self.correlation_id  = command_message[:correlation_id] || self.command_id
       self.causation_id    = command_message[:causation_id] || self.command_id
       self.type            = self.class.name
-      self.timestamp       = Time.now.iso8601
+      self.timestamp       = command_message[:timestamp] || Time.now.iso8601
       self.version         = command_message[:version] || 1
       self.meta_data       = command_message[:meta_data]
 
@@ -45,7 +41,7 @@ module EventSourced
     end
 
     def to_h
-      {
+      h = {
         aggregate_id:    aggregate_id,
         command_id:      command_id,
         type:            type,
@@ -53,9 +49,12 @@ module EventSourced
         version:         version,
         correlation_id:  correlation_id,
         causation_id:    causation_id,
-        meta_data:       meta_data,
-        data:            attributes,
       }
+
+      h[:data]      = attributes if attributes.present?
+      h[:meta_data] = meta_data  if meta_data.present?
+
+      return h
     end
   end
 end
