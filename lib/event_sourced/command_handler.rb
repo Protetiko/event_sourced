@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
-require 'securerandom'
-require 'event_sourced/validators/command_validator'
 require 'event_sourced/utils/uuid'
 require 'event_sourced/utils/message_handler'
 
 module EventSourced
-  InvalidCommand = Class.new(StandardError)
-
   class CommandHandler
     include EventSourced::MessageHandler
+
+    InvalidCommand = Class.new(StandardError)
+    EventRepositoryNotSet = Class.new(StandardError)
+    CommandRepositoryNotSet = Class.new(StandardError)
 
     def initialize(event_repository, command_repository)
       @event_repository = event_repository
@@ -26,9 +26,9 @@ module EventSourced
     end
 
     def handle_raw_command(message)
-      if Validators::CommandValidator.call(message).success?
-        command = Command::Factory.build!(message.type, message)
-        handle_command(command)
+      if Validators::CommandMessage.valid?(message)
+        command = Command::Factory.build!(message[:type], message)
+        handle_message(command)
       else
         raise InvalidCommand.new
       end
@@ -58,11 +58,11 @@ module EventSourced
     private
 
     def event_repository
-      @event_repository
+      @event_repository || raise(EventRepositoryNotSet)
     end
 
     def command_repository
-      @command_repository
+      @command_repository || raise(CommandRepositoryNotSet)
     end
   end
 end
