@@ -13,26 +13,28 @@ module EventSourced
 
     include EventSourced::Message
 
+    attr_accessor :type
     attr_accessor :command_id
     attr_accessor :aggregate_id
-    attr_accessor :type
+    attr_accessor :aggregate_type
+    attr_accessor :correlation_id
+    attr_accessor :causation_id
     attr_accessor :data
     attr_accessor :meta_data
     attr_accessor :timestamp
     attr_accessor :version
-    attr_accessor :correlation_id
-    attr_accessor :causation_id
 
     def initialize(command_message = {})
       command_message = Validators::CommandMessage.validate!(command_message)
 
-      self.aggregate_id    = command_message[:aggregate_id]
+      self.type            = self.class.name
       self.command_id      = command_message[:command_id] || UUID.generate
+      self.aggregate_id    = command_message[:aggregate_id]
+      self.aggregate_type  = command_message[:aggregate_type]
       self.correlation_id  = command_message[:correlation_id] || self.command_id
       self.causation_id    = command_message[:causation_id] || self.command_id
-      self.type            = self.class.name
 
-      timestamp = command_message[:timestamp] || DateTime.now
+      timestamp = command_message[:timestamp] || DateTime.now.utc.round(3)
       timestamp = DateTime.parse(timestamp) if timestamp.is_a?(String)
       self.timestamp       = timestamp
 
@@ -46,13 +48,14 @@ module EventSourced
 
     def to_h
       h = {
-        aggregate_id:    aggregate_id,
-        command_id:      command_id,
-        type:            type,
-        timestamp:       timestamp.iso8601,
-        version:         version,
-        correlation_id:  correlation_id,
-        causation_id:    causation_id,
+        type:           type,
+        command_id:     command_id,
+        aggregate_id:   aggregate_id,
+        aggregate_type: aggregate_type,
+        timestamp:      timestamp,
+        version:        version,
+        correlation_id: correlation_id,
+        causation_id:   causation_id,
       }
 
       h[:data]      = attributes if attributes.present?

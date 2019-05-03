@@ -35,7 +35,7 @@ module EventSourced
       self.causation_id    = self.command_id
       self.type            = self.class.name
 
-      timestamp = event_message[:timestamp] || DateTime.now
+      timestamp = event_message[:timestamp] || DateTime.now.utc.round(3)
       timestamp = DateTime.parse(timestamp) if timestamp.is_a?(String)
       self.timestamp       = timestamp
 
@@ -52,7 +52,7 @@ module EventSourced
         aggregate_id:    aggregate_id,
         command_id:      command_id,
         type:            type,
-        timestamp:       timestamp.iso8601,
+        timestamp:       timestamp,
         correlation_id:  correlation_id,
         causation_id:    causation_id,
         sequence:        sequence,
