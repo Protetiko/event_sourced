@@ -46,3 +46,5 @@ end
 
 require 'event_sourced/validators/command_message'
 require 'event_sourced/validators/event_message'
+require 'event_sourced/validators/aggregate_record'
+require 'event_sourced/validators/snapshot_record'
