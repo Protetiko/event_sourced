@@ -5,8 +5,8 @@ module EventSourced
     class AggregateRecord < Validators::Base
       set_validator(
         Dry::Validation.Params(Validators::BaseSchema) do
-          required(:id).filled?(:str?)
-          required(:type).filled?(:str?)
+          required(:id).filled(:str?)
+          required(:type).filled(:str?)
           required(:created_at) { filled? & (str? | time?) }
         end
       )

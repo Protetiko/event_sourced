@@ -11,6 +11,7 @@ module EventSourced
           optional(:causation_id).filled(:str?)
           optional(:data).filled(:hash?)
           optional(:meta_data).filled(:hash?)
+          optional(:event_sequence_number).filled(:int?)
           required(:timestamp) { filled? & (str? | time?) }
         end
       )
