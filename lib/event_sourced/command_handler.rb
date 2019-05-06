@@ -8,16 +8,14 @@ module EventSourced
     include EventSourced::MessageHandler
 
     InvalidCommand = Class.new(StandardError)
-    EventRepositoryNotSet = Class.new(StandardError)
-    CommandRepositoryNotSet = Class.new(StandardError)
+    RepositoryNotSet = Class.new(StandardError)
 
-    def initialize(event_repository, command_repository)
-      @event_repository = event_repository
-      @command_repository = command_repository
+    def initialize(repository)
+      @repository = repository
     end
 
     def apply(event)
-      result = event_repository.append(event)
+      result = repository.append_event(event)
       if result
         return true
       else
@@ -36,11 +34,8 @@ module EventSourced
 
     def handle(command)
       if handles_command?(command)
-        raise InvalidCommand.new unless command.valid?
-
         handle_message(command)
-
-        command_repository.append(command)
+        repository.append_command(command)
       end
     end
 
@@ -57,12 +52,8 @@ module EventSourced
 
     private
 
-    def event_repository
-      @event_repository || raise(EventRepositoryNotSet)
-    end
-
-    def command_repository
-      @command_repository || raise(CommandRepositoryNotSet)
+    def repository
+      @repository || raise(RepositoryNotSet)
     end
   end
 end

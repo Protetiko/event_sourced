@@ -6,43 +6,51 @@ module EventSourced
   class AggregateRoot
     include EventSourced::MessageHandler
 
-    def initialize(repository)
-      @event_repository = repository
+    attr_reader :id, :type, :event_sequence_number, :uncommitted_events
+
+    def self.load(aggregate_id)
+      events = event_repository.stream(aggregate_id)
+
+      aggregate = new(
+        id: events.first[:aggregate_id],
+        event_sequence_number: events.last[:event_sequence_number]
+      )
+
+      events.each do |event|
+        aggregate.apply(event, new_event: false)
+      end
+
+      return aggregate
     end
 
-    def load(aggregate_id)
-      load_from_events(event_repository.stream(aggregate_id))
+    def initialize(id:, event_sequence_number: 0)
+      @id = id
+      @type = self.class.name
+      @event_sequence_number = event_sequence_number
+      @uncommitted_events = []
     end
 
-    def load_from_events(events)
-      apply_events(events)
-      return self
+    def apply(event, new_event: true)
+      return unless handles_event?(event)
+
+      if new_event
+        event.event_sequence_number = @event_sequence_number + 1
+        event.aggregate_id          = @id
+        event.aggregate_type        = @type
+      end
+
+      handle_message(event)
+
+      @event_sequence_number = event.event_sequence_number
+      @uncommitted_events << event if new_event
     end
 
-    def apply_raw_event(raw_event)
-      event = build_event_object(raw_event)
+    def apply_raw_event(raw_event, new_event: true)
+      event = build_event(raw_event)
 
       return unless event
 
-      handle_message(event)
-    end
-
-    def apply_event(event)
-      return unless handles_event?(event)
-
-      handle_message(event)
-    end
-
-    def apply_events(events)
-      events.each do |event|
-        apply_event(event)
-      end
-    end
-
-    def build_event_object(raw_event)
-      return nil unless raw_event
-
-      EventSourced::Event::Factory.build(raw_event[:type], raw_event)
+      apply(event, new_event)
     end
 
     def handles_event?(event)
@@ -50,6 +58,12 @@ module EventSourced
     end
 
     private
+
+    def build_event(raw_event)
+      return nil unless raw_event
+
+      EventSourced::Event::Factory.build(raw_event[:type], raw_event)
+    end
 
     def event_repository
       @event_repository
