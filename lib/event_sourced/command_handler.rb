@@ -9,18 +9,10 @@ module EventSourced
 
     InvalidCommand = Class.new(StandardError)
     RepositoryNotSet = Class.new(StandardError)
+    UnhandledCommand = Class.new(StandardError)
 
     def initialize(repository)
       @repository = repository
-    end
-
-    def apply(event)
-      result = repository.append_event(event)
-      if result
-        return true
-      else
-        return false
-      end
     end
 
     def handle_raw_command(message)
@@ -33,10 +25,11 @@ module EventSourced
     end
 
     def handle(command)
-      if handles_command?(command)
-        handle_message(command)
-        repository.append_command(command)
-      end
+      raise(UnhandledCommand, command.to_json) unless handles_command?(command)
+
+      handle_message(command)
+
+      repository.append_command(command)
     end
 
     def handle_commands(commands)
@@ -46,14 +39,14 @@ module EventSourced
     end
 
 
-    def handles_command?(command)
-      self.class.handles_message?(command)
+    def repository
+      @repository || raise(RepositoryNotSet)
     end
 
     private
 
-    def repository
-      @repository || raise(RepositoryNotSet)
+    def handles_command?(command)
+      self.class.handles_message?(command)
     end
   end
 end
