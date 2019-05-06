@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'json'
+require 'event_sourced/models/aggregate_record'
 
 module EventSourced
   class Repository
@@ -10,27 +11,28 @@ module EventSourced
     AggregateNotFound = Class.new(StandardError)
     EventStoreNotConfigured = Class.new(StandardError)
 
-    def initialize(aggregate:, event_store:, factory:, **_config)
+    def initialize(aggregate:, store:)
       @aggregate_klass = aggregate
-      @factory         = factory
-      @event_store     = event_store
+      @store           = store
     end
 
     def create_aggregate(attributes)
       attributes[:created_at] = current_timestamp
+      attributes[:type] = @aggregate_klass.to_s
+
       attributes = Validators::AggregateRecord.validate!(attributes)
 
-      event_store.create_aggregate(attributes)
+      store.create_aggregate(attributes)
 
-      return AggregateRecord.new(attributes)
+      return Models::AggregateRecord.new(attributes)
     end
 
     def read_aggregate(aggregate_id)
       return nil unless aggregate_id
 
-      aggregate = event_store.read_aggregate(aggregate_id)
+      aggregate = store.read_aggregate(aggregate_id)
 
-      return AggregateRecord.new(aggregate)
+      return Models::AggregateRecord.new(aggregate)
     end
 
     def save_snapshot(aggregate_root)
@@ -39,40 +41,39 @@ module EventSourced
       snapshot = Validators::SnapshotRecord.validate!(aggregate_root.to_h)
       snapshot[:created_at] = current_timestamp
 
-      result = event_store.save_snapshot(snapshot)
-      event_store.update_aggregate(aggregate_id, { last_snapshot_id: result[:id] })
+      result = store.save_snapshot(snapshot)
+      store.update_aggregate(aggregate_id, { last_snapshot_id: result[:id] })
     end
 
     def append_command(command)
-      event_store.append_command(command.to_h)
+      store.append_command(command)
     end
 
     def append_event(event)
-      event_store.append_event(event.to_h)
+      store.append_event(event)
     end
 
     def append_events(events)
-      event_store.append_events(events)
+      store.append_events(events)
     end
 
-    # This is only available for EventRepository
     def aggregate(aggregate_id)
       aggregate = @aggregate_klass.new(self)
       aggregate.load_from_events(stream(aggregate_id))
     end
 
     def raw_event_stream(aggregate_id)
-      event_store.event_stream(aggregate_id)
+      store.event_stream(aggregate_id)
     end
 
     def event_stream(aggregate_id)
       raw_event_stream(aggregate_id).map do |record|
-        @factory.build!(record[:type], record)
+        EventSourced::Event::Factory.build!(record[:type], record)
       end
     end
 
     def dump
-      event_store.all.each do |record|
+      store.all.each do |record|
         ap record.to_json
         #puts JSON.pretty_generate(record).blue
       end
@@ -80,12 +81,12 @@ module EventSourced
 
     def drop_all!
       # +++ drop all aggregates and snapshots and commands +++
-      event_store.destroy_all!
+      store.destroy_all!
     end
 
     def drop_aggregate!(aggregate_id)
       # +++ drop aggregate from aggregate_store, snapshot_store and commands +++
-      event_store.destroy_aggregate!(aggregate_id)
+      store.destroy_aggregate!(aggregate_id)
     end
 
     private
@@ -94,8 +95,26 @@ module EventSourced
       Time.now.utc.round(3)
     end
 
-    def event_store
-      @event_store || raise(EventStoreNotConfigured)
+    def store
+      @store || raise(EventStoreNotConfigured)
+    end
+  end
+
+  module RepoSetup
+    module ClassMethods
+      def repository
+        @repository ||= Repository.new(aggregate: self, store: @event_store)
+      end
+
+      attr_accessor :event_store
+    end
+
+    def self.included(base)
+      base.extend ClassMethods
+    end
+
+    def repository
+      self.class.repository
     end
   end
 end
