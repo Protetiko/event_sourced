@@ -11,22 +11,9 @@ require_relative '../_common/examples.rb'
 
 Mongo::Logger.logger.level = Logger::WARN
 
-event_repository   = EventSourced::Repository.new(
-  aggregate: InventoryItem,
-  factory: EventSourced::Event::Factory,
-  event_store: EventSourced::EventStores::MongoEventStore.new(collection: 'item-events')
-)
-command_repository = EventSourced::Repository.new(
-  aggregate: InventoryItem,
-  factory: EventSourced::Command::Factory,
-  event_store: EventSourced::EventStores::MongoEventStore.new(collection: 'item-commands')
-)
-
-event_repository.drop_all!
-command_repository.drop_all!
+InventoryItem.event_store = EventSourced::EventStores::MongoEventStore.new(aggregate_name: 'Company')
+InventoryItem.repository.drop_all!
 
 run_examples(
-  example_description: 'MongoDB Repository',
-  command_repository: command_repository,
-  event_repository: event_repository,
+  example_description: 'MongoDB Repository'
 )
