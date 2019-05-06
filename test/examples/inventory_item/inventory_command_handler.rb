@@ -1,21 +1,33 @@
 # frozen_string_literal: true
 
+require_relative '../inventory_item.rb'
+
 class InventoryCommandHandler < EventSourced::CommandHandler
 
+  #aggregate_root InventoryItem
+
   on CreateInventoryItem do |command|
-    apply InventoryItemCreated.new(command.to_h)
-    apply InventoryItemRestocked.new(command.to_h) if command.count > 0
+    InventoryItem.create_and_yield(command.aggregate_id) do |item|
+      item.apply InventoryItemCreated.new(command.to_h)
+      item.apply InventoryItemRestocked.new(command.to_h) if command.count > 0
+    end
   end
 
   on UpdateInventoryItem do |command|
-    apply InventoryItemUpdated.new(command.to_h)
+    InventoryItem.load_and_yield(command.aggregate_id) do |item|
+      item.apply InventoryItemUpdated.new(command.to_h)
+    end
   end
 
   on RestockInventoryItem do |command|
-    apply InventoryItemRestocked.new(command.to_h)
+    InventoryItem.load_and_yield(command.aggregate_id) do |item|
+      item.apply InventoryItemRestocked.new(command.to_h)
+    end
   end
 
   on WithdrawInventoryItem do |command|
-    apply InventoryItemWithdrawn.new(command.to_h)
+    InventoryItem.load_and_yield(command.aggregate_id) do |item|
+      item.apply InventoryItemWithdrawn.new(command.to_h)
+    end
   end
 end

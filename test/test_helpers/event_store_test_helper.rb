@@ -2,6 +2,26 @@
 
 require 'test_helper'
 
+class CompanyCreated < EventSourced::Event
+  field :name
+  field :industry
+
+  builder do |data|
+    self.name = data[:name]
+    self.industry = data[:industry]
+  end
+end
+
+class CreateCompany < EventSourced::Command
+  field :name
+  field :industry
+
+  builder do |data|
+    self.name = data[:name]
+    self.industry = data[:industry]
+  end
+end
+
 class EventStoreTest < MiniTest::Test
   def self.inherited(base)
     base.include(EventStoreTestCases)
@@ -31,7 +51,6 @@ class EventStoreTest < MiniTest::Test
     ]
 
     EVENT_KEYS = [
-      :id,
       :aggregate_id,
       :aggregate_type,
       :type,
@@ -41,6 +60,7 @@ class EventStoreTest < MiniTest::Test
       :data,
       :meta_data,
       :timestamp,
+      :event_sequence_number,
     ]
 
     def teardown
@@ -149,11 +169,13 @@ class EventStoreTest < MiniTest::Test
         },
       }
 
-      insert_count = event_store.append_command(command_attributes)
+      command = CreateCompany.new(command_attributes)
+      insert_count = event_store.append_command(command)
       assert 1, insert_count
 
       sleep(0.1)
-      insert_count = event_store.append_command(command_attributes.merge(timestamp: current_time))
+      command = CreateCompany.new(command_attributes.merge(timestamp: current_time))
+      insert_count = event_store.append_command(command)
       assert 1, insert_count
 
       commands = event_store.command_stream(aggregate_id)
@@ -161,7 +183,7 @@ class EventStoreTest < MiniTest::Test
       assert_equal 2, commands.size
       assert_kind_of Hash, commands.first
       assert_equal COMMAND_KEYS.sort, commands.first.keys.sort
-      assert commands.first[:timestamp].to_f > commands.last[:timestamp].to_f
+      assert commands.first[:timestamp].to_f < commands.last[:timestamp].to_f
     end
 
     def test_event_interface
@@ -181,25 +203,28 @@ class EventStoreTest < MiniTest::Test
           "user_id" => EventSourced::UUID.generate,
         },
       }
+      event = CompanyCreated.new(event_attributes)
 
-      insert_count = event_store.append_event(event_attributes)
+      insert_count = event_store.append_event(event)
       assert 1, insert_count
       sleep(0.1)
-      insert_count = event_store.append_event(event_attributes)
+      insert_count = event_store.append_event(event)
       assert 1, insert_count
 
-      events = [ Hash[event_attributes] ] * 3
+      events = [ event ] * 3
       insert_count = event_store.append_events(events)
       assert 3, insert_count
 
-      insert_count = event_store.append_event(event_attributes.merge(timestamp: current_time))
+      event = CompanyCreated.new(event_attributes.merge(timestamp: current_time))
 
+      insert_count = event_store.append_event(event)
       events = event_store.event_stream(aggregate_id)
+
       assert events
       assert_kind_of Array, events
       assert_equal 6, events.count
-      assert_equal EVENT_KEYS.sort, events.last.keys.sort
-      assert events.first[:timestamp].to_f > events.last[:timestamp].to_f
+      assert_equal EVENT_KEYS.sort, events.last.to_h.keys.sort
+      assert events.first[:timestamp].to_f < events.last[:timestamp].to_f
     end
   end
 end
