@@ -114,8 +114,8 @@ class EventStoreTest < MiniTest::Test
         aggregate_type: 'Company',
         event_sequence_number: 10,
         data: {
-          "name" => "Protetiko",
-          "industry" => "Medtech",
+          'name' => 'Protetiko',
+          'industry' => 'Medtech',
         },
         created_at: current_time,
       }
@@ -134,8 +134,8 @@ class EventStoreTest < MiniTest::Test
       snapshot_attributes2 = snapshot_attributes.merge(
         event_sequence_number: 11,
         data: {
-          "name" => "Protetiko",
-          "industry" => "Social media marketing"
+          'name' => 'Protetiko',
+          'industry' => 'Social media marketing'
         },
         created_at: current_time,
       )
@@ -218,6 +218,7 @@ class EventStoreTest < MiniTest::Test
       event = CompanyCreated.new(event_attributes.merge(timestamp: current_time))
 
       insert_count = event_store.append_event(event)
+      assert_equal 1, insert_count
       events = event_store.event_stream(aggregate_id)
 
       assert events

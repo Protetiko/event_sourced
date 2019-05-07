@@ -9,11 +9,6 @@ require_relative '../_common/inventory_item.rb'
 require_relative '../_common/messages.rb'
 require_relative '../_common/examples.rb'
 
-# repository   = EventSourced::Repository.new(
-#   aggregate: InventoryItem,
-#   store: EventSourced::EventStores::MemoryEventStore.new
-# )
-
 InventoryItem.event_store = EventSourced::EventStores::MemoryEventStore.new
 
 run_examples(

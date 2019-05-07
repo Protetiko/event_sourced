@@ -46,7 +46,7 @@ module EventSourced
       end
 
       def read_snapshot(snapshot_id)
-        snapshot = snapshot_store.find {|key, hash| hash[:id] == snapshot_id }[1]
+        snapshot = snapshot_store.find {|_, hash| hash[:id] == snapshot_id }[1]
 
         raise SnapshotNotFound unless snapshot
 
@@ -86,6 +86,8 @@ module EventSourced
         else
           event_store[aggregate_id] = [attributes]
         end
+
+        return 1
       end
 
       def append_events(events)
