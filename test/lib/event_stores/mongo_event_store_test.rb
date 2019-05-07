@@ -14,7 +14,7 @@ class MongoEventStoreTest < EventStoreTest
   def setup
     super
 
-    event_store.create_indexes
+    #event_store.create_indexes
     #event_store.create_validators
   end
 end

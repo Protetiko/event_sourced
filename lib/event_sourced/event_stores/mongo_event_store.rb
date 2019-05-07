@@ -64,12 +64,12 @@ module EventSourced
       end
 
       def append_command(command)
-        result = commands_collection.insert_one(command)
+        result = commands_collection.insert_one(command.to_h)
         return result.n
       end
 
       def command_stream(aggregate_id)
-        commands = commands_collection.find(aggregate_id: aggregate_id).sort(timestamp: -1)
+        commands = commands_collection.find(aggregate_id: aggregate_id).sort(timestamp: 1)
 
         commands = commands.map do |command|
           c = Hash[command.to_h]
@@ -82,23 +82,23 @@ module EventSourced
       end
 
       def append_event(event)
-        result = events_collection.insert_one(event)
+        result = events_collection.insert_one(event.to_h)
         return result.n
       end
 
       def append_events(events)
         raise InvalidEventCollection unless events.is_a? Array
-        result = events_collection.insert_many(events)
+        result = events_collection.insert_many(events.map{|e| e.to_h })
         return result.inserted_count
       end
 
       def event_stream(aggregate_id)
-        events = events_collection.find(aggregate_id: aggregate_id).sort(timestamp: -1)
+        events = events_collection.find(aggregate_id: aggregate_id).sort(timestamp: 1)
 
         events = events.map do |event|
           e = Hash[event.to_h]
           e.symbolize_keys!
-          e[:id] = e.delete(:_id).to_s
+          e.delete(:_id)
           e
         end
 

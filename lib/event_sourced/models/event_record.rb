@@ -1,32 +1,21 @@
 # frozen_string_literal: true
 
+require 'ostruct'
+
 module EventSourced
   module Models
-    Event = Struct.new(
-      :aggregate_id,
-      :aggregate_type,
-      :sequence,
-      :type,
-      :command_id,
-      :correlation_id,
-      :causation_id,
-      :timestamp,
-      :data,
-      :meta_data,
-      :version,
-    )
-
-    EventValidator = Dry::Validation.Schema do
-      required(:aggregate_id).filled?(:str?)
-      required(:aggregate_type).filled?(:str?)
-      required(:sequence).filled?(:int?)
-      required(:type).filled?(:str?)
-      required(:command_id).filled?(:str?)
-      required(:correlation_id).filled?(:str?)
-      required(:causation_id).filled?(:str?)
-      required(:timestamp).filled?(:str?)
-      required(:data).filled?(:hash?)
-      required(:meta_data).filled?(:hash?)
-    end
+    Event = OpenStruct
+    # .new(
+    #   :aggregate_id,
+    #   :aggregate_type,
+    #   :event_sequence_number,
+    #   :type,
+    #   :command_id,
+    #   :correlation_id,
+    #   :causation_id,
+    #   :timestamp,
+    #   :data,
+    #   :meta_data,
+    # )
   end
 end

@@ -6,12 +6,16 @@ class RepositoryTest < MiniTest::Test
   let(:event_store) {
     EventSourced::EventStores::MemoryEventStore.new
   }
+
   let(:repository) {
     EventSourced::Repository.new(
       aggregate: InventoryItem,
-      factory: EventSourced::Event::Factory,
-      event_store: event_store
+      store: event_store
     )
+  }
+
+  let(:aggregate_id) {
+    EventSourced::UUID.generate
   }
 
   def test_interface
@@ -28,4 +32,27 @@ class RepositoryTest < MiniTest::Test
     assert repository.respond_to? :drop_all!
     assert repository.respond_to? :drop_aggregate!
   end
+
+  def test_aggregate_interface
+    aggregate_attributes = {
+      id:   aggregate_id
+    }
+    aggregate = repository.create_aggregate(aggregate_attributes)
+
+    assert_instance_of EventSourced::Models::AggregateRecord, aggregate
+    assert_equal aggregate_id, aggregate.id
+    assert_equal 'InventoryItem', aggregate.type
+    assert aggregate.created_at
+
+    aggregate = repository.read_aggregate(aggregate_id)
+    assert_equal aggregate_id, aggregate.id
+    assert_equal 'InventoryItem', aggregate.type
+    assert aggregate.created_at
+  end
+
+  # def test_snapshot_interface
+
+
+  #   repository.save_snapshot(snapshot_attributes)
+  # end
 end

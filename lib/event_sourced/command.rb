@@ -22,40 +22,36 @@ module EventSourced
     attr_accessor :data
     attr_accessor :meta_data
     attr_accessor :timestamp
-    attr_accessor :version
 
     def initialize(command_message = {})
       command_message = Validators::CommandMessage.validate!(command_message)
 
-      self.type            = self.class.name
-      self.command_id      = command_message[:command_id] || UUID.generate
-      self.aggregate_id    = command_message[:aggregate_id]
-      self.aggregate_type  = command_message[:aggregate_type]
-      self.correlation_id  = command_message[:correlation_id] || self.command_id
-      self.causation_id    = command_message[:causation_id] || self.command_id
+      @type           = self.class.name
+      @aggregate_id   = command_message[:aggregate_id]
+      @aggregate_type = command_message[:aggregate_type]
+      @command_id     = command_message[:command_id] || UUID.generate
+      @correlation_id = command_message[:correlation_id] || @command_id
+      @causation_id   = command_message[:causation_id] || @command_id
 
       timestamp = command_message[:timestamp] || DateTime.now.utc.round(3)
       timestamp = DateTime.parse(timestamp) if timestamp.is_a?(String)
-      self.timestamp       = timestamp
-
-      self.version         = command_message[:version] || 1
-      self.meta_data       = command_message[:meta_data]
+      @timestamp  = timestamp
 
       # Set the internal `attributes` variable
-      self.instance_exec(command_message[:data], &self.class._builder) if self.class._builder
-      self.data            = attributes
+      self.instance_exec(command_message[:data].symbolize_keys, &self.class._builder) if self.class._builder
+      @data      = attributes
+      @meta_data = command_message[:meta_data]
     end
 
     def to_h
       h = {
         type:           type,
-        command_id:     command_id,
         aggregate_id:   aggregate_id,
         aggregate_type: aggregate_type,
-        timestamp:      timestamp,
-        version:        version,
+        command_id:     command_id,
         correlation_id: correlation_id,
         causation_id:   causation_id,
+        timestamp:      timestamp,
       }
 
       h[:data]      = attributes if attributes.present?

@@ -2,10 +2,10 @@ AGGREGATE_ID = 'InventoryItem@4f6n3o2c3m43n2cjr2'
 
 BASE_COMMAND = {
   aggregate_id: AGGREGATE_ID,
+  aggregate_type: 'InventoryItem',
   meta_data: {
     user_id: 'the-user-id',
   },
-  version: 1,
 }
 
 

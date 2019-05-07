@@ -17,3 +17,6 @@ Layout/SpaceInsideBlockBraces:
 
 Style/Documentation:
   Enabled: false
+
+Style/RedundantReturn:
+  Enabled: false

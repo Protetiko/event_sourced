@@ -6,10 +6,10 @@ module EventSourced
 
         def create_indexes(collections)
           collections.events.indexes.create_one(aggregate_id: 1)
-          collections.events.indexes.create_one(aggregate_id: 1, timestamp: -1)
+          collections.events.indexes.create_one(aggregate_id: 1, timestamp: 1)
 
           collections.commands.indexes.create_one(aggregate_id: 1)
-          collections.commands.indexes.create_one(aggregate_id: 1, timestamp: -1)
+          collections.commands.indexes.create_one(aggregate_id: 1, timestamp: 1)
 
           collections.aggregates.indexes.create_one(aggregate_id: 1)
 

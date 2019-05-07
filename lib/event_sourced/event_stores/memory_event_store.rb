@@ -46,7 +46,7 @@ module EventSourced
       end
 
       def read_snapshot(snapshot_id)
-        snapshot = snapshot_store.find {|key, hash| hash[:id] == snapshot_id }[1]
+        snapshot = snapshot_store.find {|_, hash| hash[:id] == snapshot_id }[1]
 
         raise SnapshotNotFound unless snapshot
 
@@ -62,10 +62,12 @@ module EventSourced
       end
 
       def append_command(command)
-        aggregate_id = command[:aggregate_id]
+        aggregate_id = command.aggregate_id
+        command = command.to_h
         command[:id] = UUID.generate
+
         if command_store[aggregate_id]
-          command_store[aggregate_id].unshift(command)
+          command_store[aggregate_id] << command
         else
           command_store[aggregate_id] = [command]
         end
@@ -76,13 +78,16 @@ module EventSourced
       end
 
       def append_event(event)
-        aggregate_id = event[:aggregate_id]
-        event[:id] = UUID.generate
+        aggregate_id = event.aggregate_id
+        attributes = event.to_h
+        attributes[:id] = UUID.generate
         if event_store[aggregate_id]
-          event_store[aggregate_id].unshift(event)
+          event_store[aggregate_id] << attributes
         else
-          event_store[aggregate_id] = [event]
+          event_store[aggregate_id] = [attributes]
         end
+
+        return 1
       end
 
       def append_events(events)
@@ -94,7 +99,14 @@ module EventSourced
       end
 
       def event_stream(aggregate_id)
-        event_store[aggregate_id]
+        events = event_store[aggregate_id].map do |event|
+          e = Hash[event.to_h]
+          e.symbolize_keys!
+          e.delete(:id)
+          e
+        end
+
+        return events
       end
 
       def destroy_all!
@@ -110,8 +122,6 @@ module EventSourced
         event_store.delete(aggregate_id)
         snapshot_store.delete(aggregate_id)
       end
-
-      private
 
       def event_store
         @events ||= {}

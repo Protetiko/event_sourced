@@ -6,28 +6,52 @@ module EventSourced
   class AggregateRoot
     include EventSourced::MessageHandler
 
-    attr_reader :id, :type, :event_sequence_number, :uncommitted_events
+    attr_reader :id, :type, :event_sequence_number, :uncommitted_events, :created_at
 
-    def self.load(aggregate_id)
-      events = event_repository.stream(aggregate_id)
-
-      aggregate = new(
-        id: events.first[:aggregate_id],
-        event_sequence_number: events.last[:event_sequence_number]
-      )
-
-      events.each do |event|
-        aggregate.apply(event, new_event: false)
+    class << self
+      def inherited(base)
+        base.include EventSourced::RepoSetup
       end
 
-      return aggregate
+      def create(aggregate_id)
+        aggregate = new(id: aggregate_id)
+        repository.create_aggregate(aggregate.to_h)
+        return aggregate
+      end
+
+      def load(aggregate_id)
+        events = repository.event_stream(aggregate_id)
+
+        aggregate = new(
+          id: events.first.aggregate_id,
+          event_sequence_number: events.last.event_sequence_number
+        )
+
+        events.each do |event|
+          aggregate.apply(event, new_event: false)
+        end
+
+        return aggregate
+      end
+
+      def load_and_yield(aggregate_id)
+        aggregate = load(aggregate_id)
+        yield(aggregate)
+        aggregate.save
+      end
+
+      def create_and_yield(aggregate_id)
+        aggregate = create(aggregate_id)
+        yield(aggregate)
+        aggregate.save
+      end
     end
 
     def initialize(id:, event_sequence_number: 0)
-      @id = id
-      @type = self.class.name
+      @id                    = id
+      @type                  = self.class.name
       @event_sequence_number = event_sequence_number
-      @uncommitted_events = []
+      @uncommitted_events    = []
     end
 
     def apply(event, new_event: true)
@@ -57,16 +81,25 @@ module EventSourced
       self.class.handles_message?(event)
     end
 
+    def save
+      repository.append_events(@uncommitted_events)
+      @uncommitted_events = []
+    end
+
+    def to_h
+      {
+        id: @id,
+        type: @type,
+        event_sequence_number: @event_sequence_number,
+      }
+    end
+
     private
 
     def build_event(raw_event)
       return nil unless raw_event
 
       EventSourced::Event::Factory.build(raw_event[:type], raw_event)
-    end
-
-    def event_repository
-      @event_repository
     end
   end
 end
