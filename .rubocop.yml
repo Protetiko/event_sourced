@@ -20,3 +20,6 @@ Style/Documentation:
 
 Style/RedundantReturn:
   Enabled: false
+
+Style/TrailingCommaInHashLiteral:
+  Enabled: false
