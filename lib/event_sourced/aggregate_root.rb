@@ -8,6 +8,23 @@ module EventSourced
 
     attr_reader :id, :type, :event_sequence_number, :uncommitted_events, :created_at
 
+    # class Snapshot
+    #   def self.load
+    #     factor.load('Order', data)
+    #     return AggregateRoot
+    #   end
+
+    #   def initialize(aggregate_root)
+    #     @aggregate_root = aggregate_root
+    #   end
+
+    #   def save
+    #     @data = @aggregate_root.attributes.to_h
+
+    #     repository.save_aggregate(self)
+    #   end
+    # end
+
     class << self
       def inherited(base)
         base.include EventSourced::RepoSetup
