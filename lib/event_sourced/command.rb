@@ -38,8 +38,10 @@ module EventSourced
       @timestamp  = timestamp
 
       # Set the internal `attributes` variable
-      self.instance_exec(command_message[:data].symbolize_keys, &self.class._builder) if self.class._builder
-      @data      = attributes
+      if command_message[:data]
+        self.instance_exec(command_message[:data].symbolize_keys, &self.class._builder) if self.class._builder
+      end
+      @data = attributes
       @meta_data = command_message[:meta_data]
     end
 
