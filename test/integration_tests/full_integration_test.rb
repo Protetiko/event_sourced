@@ -9,7 +9,7 @@ class FullIntegrationTest < MiniTest::Test
   let(:event_store) { InventoryItem.event_store }
 
   let(:command_handler) {
-    InventoryCommandHandler.new(InventoryItem.repository)
+    InventoryCommandHandler.new(InventoryItem)
   }
 
   let(:aggregate_id) {

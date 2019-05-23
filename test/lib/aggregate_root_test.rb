@@ -66,3 +66,5 @@
 #     end
 #   end
 # end
+
+# Test loading non-existing aggregate
