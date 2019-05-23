@@ -99,7 +99,7 @@ module EventSourced
       end
 
       def event_stream(aggregate_id)
-        events = event_store[aggregate_id].map do |event|
+        events = event_store[aggregate_id]&.map do |event|
           e = Hash[event.to_h]
           e.symbolize_keys!
           e.delete(:id)

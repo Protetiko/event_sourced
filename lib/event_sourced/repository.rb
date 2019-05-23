@@ -78,9 +78,11 @@ module EventSourced
     end
 
     def event_stream(aggregate_id)
-      raw_event_stream(aggregate_id).map do |record|
+      events = raw_event_stream(aggregate_id)&.map do |record|
         EventSourced::Event::Factory.build!(record[:type], record)
       end
+
+      return events || []
     end
 
     def drop_all!

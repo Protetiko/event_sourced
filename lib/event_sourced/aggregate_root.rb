@@ -38,6 +38,7 @@ module EventSourced
 
       def load(aggregate_id)
         events = repository.event_stream(aggregate_id)
+        return nil unless events.present?
 
         aggregate = new(
           id: events.first.aggregate_id,
@@ -54,7 +55,7 @@ module EventSourced
       def load_and_yield(aggregate_id)
         aggregate = load(aggregate_id)
         yield(aggregate)
-        aggregate.save
+        aggregate&.save
       end
 
       def create_and_yield(aggregate_id)
