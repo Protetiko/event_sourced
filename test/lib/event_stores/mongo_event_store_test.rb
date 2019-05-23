@@ -2,8 +2,6 @@
 
 require 'test_helper'
 
-Mongo::Logger.logger.level = ENV['MONGO_DEBUG_LEVEL'] || Logger::ERROR
-
 class MongoEventStoreTest < EventStoreTest
   def event_store
     @event_store ||= EventSourced::EventStores::MongoEventStore.new(

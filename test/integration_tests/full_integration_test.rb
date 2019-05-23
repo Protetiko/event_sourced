@@ -2,13 +2,15 @@
 
 require 'test_helper'
 
-event_store ||= EventSourced::EventStores::MemoryEventStore.new(aggregate_name: 'item')
+event_store ||= EventSourced::EventStores::MongoEventStore.new(aggregate_name: 'item')
 InventoryItem.event_store = event_store
 
 class FullIntegrationTest < MiniTest::Test
   let(:event_store) { InventoryItem.event_store }
 
-  let(:command_handler) { InventoryCommandHandler.new(InventoryItem.repository) }
+  let(:command_handler) {
+    InventoryCommandHandler.new(InventoryItem.repository)
+  }
 
   let(:aggregate_id) {
     EventSourced::UUID.generate
@@ -22,8 +24,8 @@ class FullIntegrationTest < MiniTest::Test
     command = CreateInventoryItem.new(CREATE_ITEM_COMMAND_MESSAGE.merge(aggregate_id: aggregate_id))
 
     command_handler.handle(command)
-    command_stream = event_store.command_stream(aggregate_id)
 
+    command_stream = event_store.command_stream(aggregate_id)
     assert_equal 1, command_stream.size
 
     assert_equal command.to_h.sort, CreateInventoryItem.new(command_stream.last).to_h.sort

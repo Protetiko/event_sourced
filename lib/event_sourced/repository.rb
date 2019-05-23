@@ -2,14 +2,16 @@
 
 require 'json'
 require 'event_sourced/models/aggregate_record'
+require 'event_sourced/models/snapshot_record'
 
 module EventSourced
   class Repository
-    InvalidEvent = Class.new(StandardError)
-    InvalidEventCollection = Class.new(StandardError)
-    NotImplemented = Class.new(StandardError)
-    AggregateNotFound = Class.new(StandardError)
+    InvalidEvent            = Class.new(StandardError)
+    InvalidEventCollection  = Class.new(StandardError)
+    NotImplemented          = Class.new(StandardError)
+    AggregateNotFound       = Class.new(StandardError)
     EventStoreNotConfigured = Class.new(StandardError)
+    InvalidAggregateRoot    = Class.new(StandardError)
 
     def initialize(aggregate:, store:)
       @aggregate_klass = aggregate
@@ -38,11 +40,20 @@ module EventSourced
     def save_snapshot(aggregate_root)
       raise InvalidAggregateRoot unless aggregate_root.kind_of?(AggregateRoot)
 
-      snapshot = Validators::SnapshotRecord.validate!(aggregate_root.to_h)
-      snapshot[:created_at] = current_timestamp
+      snapshot = Models::Snapshot.new
 
-      result = store.save_snapshot(snapshot)
-      store.update_aggregate(aggregate_id, { last_snapshot_id: result[:id] })
+      snapshot.aggregate_id = aggregate_root.id
+      snapshot.type         = aggregate_root.type
+      snapshot.created_at   = current_timestamp
+      snapshot.data         = Base64.encode64(Marshal.dump(aggregate_root))
+
+      result = store.save_snapshot(snapshot.to_h)
+      store.update_aggregate(aggregate_root.id, { last_snapshot_id: result[:id] })
+    end
+
+    def read_snapshot(aggregate_id)
+      return nil unless aggregate_id
+      return Marshal.load(Base64.decode64(store.read_aggregate(aggregate_id)[:data]))
     end
 
     def append_command(command)
@@ -69,13 +80,6 @@ module EventSourced
     def event_stream(aggregate_id)
       raw_event_stream(aggregate_id).map do |record|
         EventSourced::Event::Factory.build!(record[:type], record)
-      end
-    end
-
-    def dump
-      store.all.each do |record|
-        ap record.to_json
-        #puts JSON.pretty_generate(record).blue
       end
     end
 

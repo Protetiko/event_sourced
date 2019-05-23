@@ -2,21 +2,27 @@
 
 require 'test_helper.rb'
 
+class DummyItem < EventSourced::AggregateRoot
+end
+
 class RepositoryTest < MiniTest::Test
+  include EventSourced::Examples
+
   let(:event_store) {
     EventSourced::EventStores::MemoryEventStore.new
   }
 
   let(:repository) {
-    EventSourced::Repository.new(
-      aggregate: InventoryItem,
-      store: event_store
-    )
+    DummyItem.repository
   }
 
   let(:aggregate_id) {
     EventSourced::UUID.generate
   }
+
+  def setup
+    DummyItem.event_store = event_store
+  end
 
   def test_interface
     assert repository.respond_to? :create_aggregate
@@ -28,7 +34,6 @@ class RepositoryTest < MiniTest::Test
     assert repository.respond_to? :aggregate
     assert repository.respond_to? :raw_event_stream
     assert repository.respond_to? :event_stream
-    assert repository.respond_to? :dump
     assert repository.respond_to? :drop_all!
     assert repository.respond_to? :drop_aggregate!
   end
@@ -41,18 +46,18 @@ class RepositoryTest < MiniTest::Test
 
     assert_instance_of EventSourced::Models::AggregateRecord, aggregate
     assert_equal aggregate_id, aggregate.id
-    assert_equal 'InventoryItem', aggregate.type
+    assert_equal 'DummyItem', aggregate.type
     assert aggregate.created_at
 
     aggregate = repository.read_aggregate(aggregate_id)
     assert_equal aggregate_id, aggregate.id
-    assert_equal 'InventoryItem', aggregate.type
+    assert_equal 'DummyItem', aggregate.type
     assert aggregate.created_at
   end
 
   # def test_snapshot_interface
-
-
-  #   repository.save_snapshot(snapshot_attributes)
+  #   aggregate = DummyItem.new(id: aggregate_id)
+  #   aggregate.save
+  #   repository.save_snapshot(aggregate)
   # end
 end
