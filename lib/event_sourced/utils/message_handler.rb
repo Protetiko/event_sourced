@@ -24,9 +24,9 @@ module EventSourced
       base.extend(ClassMethods)
     end
 
-    def handle_message(message)
-      handlers = self.class.message_map[message.class]
-      handlers.each {|handler| self.instance_exec(message, &handler) } if handlers
+    def handle_message(*args)
+      handlers = self.class.message_map[args.first.class]
+      handlers.each {|handler| self.instance_exec(*args, &handler) } if handlers
     end
   end
 end
