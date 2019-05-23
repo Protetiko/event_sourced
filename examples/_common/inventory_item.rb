@@ -12,7 +12,7 @@ class InventoryItem < EventSourced::AggregateRoot
   attr_reader :stock
   attr_reader :in_stock
 
-  on InventoryItemCreated do |event|
+  on InventoryItemCreated do |event, _|
     @id          = event.aggregate_id
     @description = event.description
     @created_at  = event.timestamp
@@ -21,18 +21,18 @@ class InventoryItem < EventSourced::AggregateRoot
     calculate_availability
   end
 
-  on InventoryItemUpdated do |event|
+  on InventoryItemUpdated do |event, _|
     @description = event.description
     @updated_at  = event.timestamp
   end
 
-  on InventoryItemRestocked do |event|
+  on InventoryItemRestocked do |event, _|
     @stock += event.count
 
     calculate_availability
   end
 
-  on InventoryItemWithdrawn do |event|
+  on InventoryItemWithdrawn do |event, _|
     @stock -= event.count
 
     # reject if @stock - event.count < 0
