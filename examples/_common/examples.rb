@@ -3,7 +3,7 @@
 def run_examples(example_description:)
   puts "\n#### Running examples for: #{example_description}".purple
 
-  command_handler = InventoryCommandHandler.new(InventoryItem.repository)
+  command_handler = InventoryCommandHandler.new(InventoryItem)
 
   command_handler.handle(CreateInventoryItem.new(CREATE_ITEM_COMMAND_MESSAGE))
   10.times { command_handler.handle(WithdrawInventoryItem.new(WITHDRAW_ITEM_COMMAND_MESSAGE)) }
@@ -16,9 +16,10 @@ def run_examples(example_description:)
   # puts "\n## Should dump all events:".white
   # event_repository.dump
 
-  puts "\n## Should produce the same result:".white
-  ap InventoryItem.load(AGGREGATE_ID).to_h
+  puts "\n## Aggregate record::".white
   ap InventoryItem.repository.read_aggregate(AGGREGATE_ID).to_h
+  puts "\n## Aggregate root:".white
+  ap InventoryItem.load(AGGREGATE_ID).to_h
 
   puts "\n## Should find items from factory:".white
   puts " - Note, no :aggregate_type or :event_sequence_number because this is a 'raw' event.".green

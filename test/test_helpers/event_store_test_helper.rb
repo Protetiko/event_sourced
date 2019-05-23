@@ -108,6 +108,12 @@ class EventStoreTest < MiniTest::Test
       assert_equal aggregate_attributes.merge(last_snapshot_id: snapshot_id).sort, aggregate.sort
     end
 
+    def test_missing_aggregate
+      assert_raises EventSourced::EventStores::EventStore::AggregateRecordNotFound do
+        event_store.read_aggregate(BSON::ObjectId.new.to_s)
+      end
+    end
+
     def test_snapshot_interface
       snapshot_attributes = {
         aggregate_id: aggregate_id,

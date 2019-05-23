@@ -13,21 +13,15 @@ class InventoryCommandHandler < EventSourced::CommandHandler
     end
   end
 
-  on UpdateInventoryItem do |command|
-    InventoryItem.load_and_yield(command.aggregate_id) do |item|
-      item.apply InventoryItemUpdated.new(command.to_h)
-    end
+  on UpdateInventoryItem do |command, item|
+    item.apply InventoryItemUpdated.new(command.to_h)
   end
 
-  on RestockInventoryItem do |command|
-    InventoryItem.load_and_yield(command.aggregate_id) do |item|
-      item.apply InventoryItemRestocked.new(command.to_h)
-    end
+  on RestockInventoryItem do |command, item|
+    item.apply InventoryItemRestocked.new(command.to_h)
   end
 
-  on WithdrawInventoryItem do |command|
-    InventoryItem.load_and_yield(command.aggregate_id) do |item|
-      item.apply InventoryItemWithdrawn.new(command.to_h)
-    end
+  on WithdrawInventoryItem do |command, item|
+    item.apply InventoryItemWithdrawn.new(command.to_h)
   end
 end
