@@ -6,7 +6,7 @@ class InventoryCommandHandler < EventSourced::CommandHandler
 
   #aggregate_root InventoryItem
 
-  on CreateInventoryItem do |command, _|
+  on CreateInventoryItem do |command|
     InventoryItem.create_and_yield(command.aggregate_id) do |item|
       item.apply InventoryItemCreated.new(command.to_h)
       item.apply InventoryItemRestocked.new(command.to_h) if command.count > 0
