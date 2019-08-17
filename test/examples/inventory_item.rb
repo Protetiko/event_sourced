@@ -7,7 +7,7 @@ require_relative 'inventory_item/events.rb'
 require_relative 'inventory_item/inventory_command_handler.rb'
 require_relative 'inventory_item/messages.rb'
 
-class InventoryItem < EventSourced::AggregateRoot
+class Item < EventSourced::AggregateRoot
 
   attr_reader :id
   attr_reader :description
@@ -15,28 +15,44 @@ class InventoryItem < EventSourced::AggregateRoot
   attr_reader :updated_at
   attr_reader :stock
   attr_reader :in_stock
+  attr_reader :vendor
+  attr_reader :price
 
-  on InventoryItemCreated do |event|
+  # before do |event|
+  #   @updated_at  = event.timestamp
+  # end
+
+  on ItemCreated do |event|
     @id          = event.aggregate_id
-    @description = event.description
     @created_at  = event.timestamp
     @stock       = 0
 
     calculate_availability
   end
 
-  on InventoryItemUpdated do |event|
+  on DescriptionSet do |event|
     @description = event.description
     @updated_at  = event.timestamp
   end
 
-  on InventoryItemRestocked do |event|
+  on RetailPriceSet do |event|
+    @price = event.price
+  end
+
+  on VendorSet do |event|
+    @vendor = {
+      id:   event.vendor_id,
+      name: event.vendor_name,
+    }
+  end
+
+  on InventoryRestocked do |event|
     @stock += event.count
 
     calculate_availability
   end
 
-  on InventoryItemWithdrawn do |event|
+  on InventoryWithdrawn do |event|
     @stock -= event.count
 
     # reject if @stock - event.count < 0

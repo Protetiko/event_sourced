@@ -4,24 +4,34 @@ require_relative '../inventory_item.rb'
 
 class InventoryCommandHandler < EventSourced::CommandHandler
 
-  #aggregate_root InventoryItem
+  #aggregate_root Item
 
-  on CreateInventoryItem do |command|
-    InventoryItem.create_and_yield(command.aggregate_id) do |item|
-      item.apply InventoryItemCreated.new(command.to_h)
-      item.apply InventoryItemRestocked.new(command.to_h) if command.count > 0
+  on CreateItem do |command|
+    Item.create_and_yield(command.aggregate_id) do |item|
+      c = command.to_h
+      item.apply ItemCreated.new(c)
+      item.apply DescriptionSet.new(c) if command.description
+      item.apply InventoryRestocked.new(c) if command.count > 0
     end
   end
 
-  on UpdateInventoryItem do |command, item|
-    item.apply InventoryItemUpdated.new(command.to_h)
+  on SetDescription do |command, item|
+    item.apply DescriptionSet.new(command.to_h)
   end
 
-  on RestockInventoryItem do |command, item|
-    item.apply InventoryItemRestocked.new(command.to_h)
+  on SetRetailPrice do |command, item|
+    item.apply RetailPriceSet.new(command.to_h)
   end
 
-  on WithdrawInventoryItem do |command, item|
-    item.apply InventoryItemWithdrawn.new(command.to_h)
+  on SetVendor do |command, item|
+    item.apply VendorSet.new(command.to_h)
+  end
+
+  on RestockInventory do |command, item|
+    item.apply InventoryRestocked.new(command.to_h)
+  end
+
+  on WithdrawInventory do |command, item|
+    item.apply InventoryWithdrawn.new(command.to_h)
   end
 end

@@ -18,7 +18,7 @@ CREATE_ITEM_COMMAND_MESSAGE = BASE_COMMAND.merge(
   correlation_id: 'the-correlation-id-1',
 )
 
-UPDATE_ITEM_COMMAND_MESSAGE = BASE_COMMAND.merge(
+SET_ITEM_DESCRIPTION_COMMAND_MESSAGE = BASE_COMMAND.merge(
   type: 'update_inventory_item',
   data: {
     'description' => 'Very fine wool blanket',
