@@ -10,7 +10,6 @@ module EventSourced
           optional(:command_id).filled(:str?)
           optional(:correlation_id).filled(:str?)
           optional(:causation_id).filled(:str?)
-          required(:type).filled(:str?)
           optional(:data).filled(:hash?)
           optional(:meta_data).filled(:hash?)
           optional(:timestamp) { filled? & (str? | time?) }

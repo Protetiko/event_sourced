@@ -23,26 +23,27 @@ module EventSourced
     attr_accessor :meta_data
     attr_accessor :timestamp
 
-    def initialize(command_message = {})
-      command_message = Validators::CommandMessage.validate!(command_message)
+    def initialize(message = {})
+      message = Validators::CommandMessage.validate!(message)
 
       @type           = self.class.name
-      @aggregate_id   = command_message[:aggregate_id]
-      @aggregate_type = command_message[:aggregate_type]
-      @command_id     = command_message[:command_id] || UUID.generate
-      @correlation_id = command_message[:correlation_id] || @command_id
-      @causation_id   = command_message[:causation_id] || @command_id
+      @aggregate_id   = message[:aggregate_id]
+      @aggregate_type = message[:aggregate_type]
+      @command_id     = message[:command_id] || UUID.generate
+      @correlation_id = message[:correlation_id] || @command_id
+      @causation_id   = message[:causation_id] || @command_id
 
-      timestamp = command_message[:timestamp] || DateTime.now.utc.round(3)
+      timestamp = message[:timestamp] || DateTime.now.utc.round(3)
       timestamp = DateTime.parse(timestamp) if timestamp.is_a?(String)
-      @timestamp  = timestamp
+      @timestamp = timestamp
 
       # Set the internal `attributes` variable
-      if command_message[:data]
-        self.instance_exec(command_message[:data].symbolize_keys, &self.class._builder) if self.class._builder
+      if message[:data]
+        self.instance_exec(message[:data].symbolize_keys, &self.class._builder) if self.class._builder
       end
+
       @data = attributes
-      @meta_data = command_message[:meta_data]
+      @meta_data = message[:meta_data]
     end
 
     def to_h
