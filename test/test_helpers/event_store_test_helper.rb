@@ -60,7 +60,7 @@ class EventStoreTest < MiniTest::Test
       :data,
       :meta_data,
       :timestamp,
-      :event_sequence_number,
+      :sequence_number,
     ]
 
     def teardown
@@ -118,7 +118,7 @@ class EventStoreTest < MiniTest::Test
       snapshot_attributes = {
         aggregate_id: aggregate_id,
         aggregate_type: 'Company',
-        event_sequence_number: 10,
+        sequence_number: 10,
         data: {
           'name' => 'Protetiko',
           'industry' => 'Medtech',
@@ -138,7 +138,7 @@ class EventStoreTest < MiniTest::Test
       assert_equal snapshot1.sort, snapshot2.sort
 
       snapshot_attributes2 = snapshot_attributes.merge(
-        event_sequence_number: 11,
+        sequence_number: 11,
         data: {
           'name' => 'Protetiko',
           'industry' => 'Social media marketing'

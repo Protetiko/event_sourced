@@ -6,7 +6,7 @@ module EventSourced
   class AggregateRoot
     include EventSourced::MessageHandler
 
-    attr_reader :id, :type, :event_sequence_number, :uncommitted_events, :created_at
+    attr_reader :id, :type, :sequence_number, :uncommitted_events, :created_at
 
     # class Snapshot
     #   def self.load
@@ -42,7 +42,7 @@ module EventSourced
 
         aggregate = new(
           id: events.first.aggregate_id,
-          event_sequence_number: events.last.event_sequence_number
+          sequence_number: events.last.sequence_number
         )
 
         events.each do |event|
@@ -65,10 +65,10 @@ module EventSourced
       end
     end
 
-    def initialize(id:, event_sequence_number: 0)
+    def initialize(id:, sequence_number: 0)
       @id                    = id
       @type                  = self.class.name
-      @event_sequence_number = event_sequence_number
+      @sequence_number = sequence_number
       @uncommitted_events    = []
     end
 
@@ -76,14 +76,14 @@ module EventSourced
       return unless handles_event?(event)
 
       if new_event
-        event.event_sequence_number = @event_sequence_number + 1
+        event.sequence_number = @sequence_number + 1
         event.aggregate_id          = @id
         event.aggregate_type        = @type
       end
 
       handle_message(event)
 
-      @event_sequence_number = event.event_sequence_number
+      @sequence_number = event.sequence_number
       @uncommitted_events << event if new_event
     end
 
@@ -108,7 +108,7 @@ module EventSourced
       {
         id: @id,
         type: @type,
-        event_sequence_number: @event_sequence_number,
+        sequence_number: @sequence_number,
       }
     end
 

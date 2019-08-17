@@ -54,11 +54,11 @@ module EventSourced
               'collMod' => collection_name,
               'validator' => {
                 '$or' => [
-                  {'aggregate_id'          => { '$type' => "string" }},
-                  {'aggregate_type'        => { '$type' => "string" }},
-                  {'event_sequence_number' => { '$type' => "int" }},
-                  {'data'                  => { '$type' => "object" }},
-                  {'create_at'             => { '$type' => "date" }},
+                  {'aggregate_id'    => { '$type' => "string" }},
+                  {'aggregate_type'  => { '$type' => "string" }},
+                  {'sequence_number' => { '$type' => "int" }},
+                  {'data'            => { '$type' => "object" }},
+                  {'create_at'       => { '$type' => "date" }},
                 ]
               }
             }

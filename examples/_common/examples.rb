@@ -22,7 +22,7 @@ def run_examples(example_description:)
   ap InventoryItem.load(AGGREGATE_ID).to_h
 
   puts "\n## Should find items from factory:".white
-  puts " - Note, no :aggregate_type or :event_sequence_number because this is a 'raw' event.".green
+  puts " - Note, no :aggregate_type or :sequence_number because this is a 'raw' event.".green
   ap EventSourced::Command::Factory.for('CreateInventoryItem')
   ap EventSourced::Event::Factory.build('InventoryItemCreated', INVENTORY_ITEM_CREATED).to_h
 
