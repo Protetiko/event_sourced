@@ -51,13 +51,13 @@ module EventSourced
 
     def to_h
       h = {
-        type:           type,
-        aggregate_id:   aggregate_id,
-        aggregate_type: aggregate_type,
-        command_id:     command_id,
-        correlation_id: correlation_id,
-        causation_id:   causation_id,
-        timestamp:      timestamp,
+        type:            type,
+        aggregate_id:    aggregate_id,
+        aggregate_type:  aggregate_type,
+        command_id:      command_id,
+        correlation_id:  correlation_id,
+        causation_id:    causation_id,
+        timestamp:       timestamp,
         sequence_number: sequence_number,
       }
 

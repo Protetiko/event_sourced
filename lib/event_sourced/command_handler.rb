@@ -17,12 +17,10 @@ module EventSourced
     end
 
     def handle_raw_command(message)
-      if Validators::CommandMessage.valid?(message)
-        command = Command::Factory.build!(message[:type], message)
-        handle_message(command)
-      else
-        raise InvalidCommand.new
-      end
+      raise InvalidCommand unless Validators::CommandMessage.valid?(message)
+
+      command = Command::Factory.build!(message[:type], message)
+      handle_message(command)
     end
 
     def handle(command)

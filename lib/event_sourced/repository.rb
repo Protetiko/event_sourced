@@ -38,7 +38,7 @@ module EventSourced
     end
 
     def save_snapshot(aggregate_root)
-      raise InvalidAggregateRoot unless aggregate_root.kind_of?(AggregateRoot)
+      raise InvalidAggregateRoot unless aggregate_root.is_a?(AggregateRoot)
 
       snapshot = Models::Snapshot.new
 
@@ -48,11 +48,12 @@ module EventSourced
       snapshot.data         = Base64.encode64(Marshal.dump(aggregate_root))
 
       result = store.save_snapshot(snapshot.to_h)
-      store.update_aggregate(aggregate_root.id, { last_snapshot_id: result[:id] })
+      store.update_aggregate(aggregate_root.id, last_snapshot_id: result[:id])
     end
 
     def read_snapshot(aggregate_id)
       return nil unless aggregate_id
+
       return Marshal.load(Base64.decode64(store.read_aggregate(aggregate_id)[:data]))
     end
 

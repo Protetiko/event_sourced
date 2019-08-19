@@ -6,14 +6,14 @@ module EventSourced
   module EventStores
     class MemoryEventStore < EventStore
       def initialize(_config = {})
-        @events = {}
-        @commands = {}
-        @aggregates = {}
-        @snapshots = {}
+        @event_store = {}
+        @command_store = {}
+        @aggregate_store = {}
+        @snapshot_store = {}
       end
 
       def create_aggregate(attributes)
-        raise(CreateAggregateRecordFailed, "Aggregate update attributes must be a Hash") unless attributes.is_a?(Hash)
+        raise(CreateAggregateRecordFailed, 'Aggregate update attributes must be a Hash') unless attributes.is_a?(Hash)
 
         attributes = Hash[attributes]
         id = attributes[:id]
@@ -29,7 +29,7 @@ module EventSourced
       end
 
       def update_aggregate(aggregate_id, attributes)
-        raise(UpdateAggregateRecordFailed, "Aggregate update attributes must be a Hash") unless attributes.is_a?(Hash)
+        raise(UpdateAggregateRecordFailed, 'Aggregate update attributes must be a Hash') unless attributes.is_a?(Hash)
 
         aggregate = aggregate_store[aggregate_id]
         attributes.each_pair do |k, v|
@@ -39,7 +39,7 @@ module EventSourced
 
       def save_snapshot(snapshot)
         id = EventSourced::UUID.generate
-        attributes = {id: id, **snapshot}
+        attributes = { id: id, **snapshot }
         aggregate_id = attributes[:aggregate_id]
         snapshot_store[aggregate_id] = attributes
         return attributes
@@ -92,7 +92,7 @@ module EventSourced
 
       def append_events(events)
         if events.is_a? Array
-          events.each{|e| append_event(e) }
+          events.eac {|e| append_event(e) }
         else
           append_event(events)
         end
@@ -124,19 +124,19 @@ module EventSourced
       end
 
       def event_store
-        @events ||= {}
+        @event_store ||= {}
       end
 
       def command_store
-        @commands ||= {}
+        @command_store ||= {}
       end
 
       def aggregate_store
-        @aggregates ||= {}
+        @aggregate_store ||= {}
       end
 
       def snapshot_store
-        @snapshots ||= {}
+        @snapshot_store ||= {}
       end
     end
   end

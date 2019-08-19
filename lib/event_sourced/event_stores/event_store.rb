@@ -43,7 +43,7 @@ module EventSourced
       end
 
       def append_event(event)
-          raise MethodNotImplemented
+        raise MethodNotImplemented
       end
 
       def append_events(events)
