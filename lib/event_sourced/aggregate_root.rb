@@ -41,7 +41,7 @@ module EventSourced
         return nil unless events.present?
 
         aggregate = new(
-          id: events.first.aggregate_id,
+          id:              events.first.aggregate_id,
           sequence_number: events.last.sequence_number
         )
 
@@ -68,7 +68,7 @@ module EventSourced
     def initialize(id:, sequence_number: 0)
       @id                    = id
       @type                  = self.class.name
-      @sequence_number = sequence_number
+      @sequence_number       = sequence_number
       @uncommitted_events    = []
     end
 
@@ -106,8 +106,8 @@ module EventSourced
 
     def to_h
       {
-        id: @id,
-        type: @type,
+        id:              @id,
+        type:            @type,
         sequence_number: @sequence_number,
       }
     end

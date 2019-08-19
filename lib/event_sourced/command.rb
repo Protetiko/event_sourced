@@ -39,7 +39,7 @@ module EventSourced
 
       # Set the internal `attributes` variable
       if message[:data]
-        self.instance_exec(message[:data].symbolize_keys, &self.class._builder) if self.class._builder
+        instance_exec(message[:data].symbolize_keys, &self.class._builder) if self.class._builder
       end
 
       @data = attributes
