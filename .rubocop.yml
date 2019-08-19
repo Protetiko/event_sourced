@@ -15,6 +15,12 @@ Style/SafeNavigation:
 Layout/SpaceInsideBlockBraces:
   SpaceBeforeBlockParameters: false
 
+Layout/AlignHash:
+  EnforcedColonStyle: table
+
+Layout/EndOfLine:
+  EnforcedStyle: lf
+
 Style/Documentation:
   Enabled: false
 
@@ -22,4 +28,7 @@ Style/RedundantReturn:
   Enabled: false
 
 Style/TrailingCommaInHashLiteral:
+  Enabled: false
+
+Security/MarshalLoad:
   Enabled: false
