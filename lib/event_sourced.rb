@@ -2,6 +2,7 @@
 
 require 'active_support/core_ext/hash'
 require 'event_sourced/version'
+require 'event_sourced/logger'
 require 'event_sourced/validators'
 require 'event_sourced/event'
 require 'event_sourced/command'
