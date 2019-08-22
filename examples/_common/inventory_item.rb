@@ -14,14 +14,13 @@ class InventoryItem < EventSourced::AggregateRoot
 
   on InventoryItemCreated do |event|
     @id          = event.aggregate_id
-    @description = event.description
     @created_at  = event.timestamp
     @stock       = 0
 
     calculate_availability
   end
 
-  on InventoryItemUpdated do |event|
+  on ItemDescriptionSet do |event|
     @description = event.description
     @updated_at  = event.timestamp
   end
@@ -36,7 +35,8 @@ class InventoryItem < EventSourced::AggregateRoot
     @stock -= event.count
 
     # reject if @stock - event.count < 0
-    # publish low stock event on queues if under 10 in stock <--- This should not be the responsibility for this service. Some other service should keep track of inventory item events and warn.
+    # publish low stock event on queues if under 10 in stock <--- This should not be the responsibility
+    # for this service. Some other service should keep track of inventory item events and warn.
 
     calculate_availability
   end

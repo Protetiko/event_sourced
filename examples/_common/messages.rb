@@ -18,11 +18,10 @@ CREATE_ITEM_COMMAND_MESSAGE = BASE_COMMAND.merge(
   },
   correlation_id: 'the-correlation-id-1',
 )
-
-UPDATE_ITEM_COMMAND_MESSAGE = BASE_COMMAND.merge(
+SET_ITEM_DESCRIPTION_COMMAND_MESSAGE = BASE_COMMAND.merge(
   type: 'update_inventory_item',
   data: {
-    description: 'Very fine wool blanket',
+    'description' => 'Very fine wool blanket',
   },
   correlation_id: 'the-correlation-id-2',
 )
@@ -43,7 +42,13 @@ WITHDRAW_ITEM_COMMAND_MESSAGE = BASE_COMMAND.merge(
   correlation_id: 'the-correlation-id-4',
 )
 
-INVENTORY_ITEM_CREATED = BASE_COMMAND.merge(
+BASE_EVENT = BASE_COMMAND.merge(
+  {
+    timestamp: Time.now
+  }
+)
+
+INVENTORY_ITEM_CREATED = BASE_EVENT.merge(
   command_id:     "d6da1b4b-9d7c-4b84-941f-1bbb595403a3",
   type:           "InventoryItemCreated",
   timestamp:      "2019-04-21T12:53:09+02:00",
@@ -51,5 +56,19 @@ INVENTORY_ITEM_CREATED = BASE_COMMAND.merge(
   causation_id:   "d6da1b4b-9d7c-4b84-941f-1bbb595403a3",
   data: {
     description: "Fine wool blanket"
+  },
+)
+
+INVENTORY_ITEM_RESTOCKED = BASE_EVENT.merge(
+  type: "InventoryItemRestocked",
+  data: {
+    count: 222
+  },
+)
+
+INVENTORY_ITEM_WITHDRAWN = BASE_EVENT.merge(
+  type: "InventoryItemWithdrawn",
+  data: {
+    count: 44
   },
 )

@@ -12,7 +12,7 @@ class CreateInventoryItem < EventSourced::Command
   end
 end
 
-class UpdateInventoryItem < EventSourced::Command
+class SetItemDescription < EventSourced::Command
   field :description
 
   builder do |data|

@@ -3,18 +3,12 @@
 require 'event_sourced/event'
 
 class InventoryItemCreated < EventSourced::Event
-  field :description
-
-  builder do |data|
-    self.description = data[:description]
-  end
-
   def to_s
-    "#{self.class.name} - Set description to `#{self.description}`"
+    "#{self.class.name} - Created"
   end
 end
 
-class InventoryItemUpdated < EventSourced::Event
+class ItemDescriptionSet < EventSourced::Event
   field :description
 
   builder do |data|
