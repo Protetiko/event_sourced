@@ -1,16 +1,15 @@
 # frozen_string_literal: true
 
-require 'event_sourced/event_stores/event_store'
 require 'mongo'
+require 'event_sourced/event_stores/event_store'
+require 'event_sourced/utils/extensions/string'
 
 module EventSourced
   module EventStores
     class MongoEventStore < EventStore
       def initialize(config = {})
-        @database       = config[:database] || 'event-store'
-        @aggregate_name = config[:aggregate_name] || nil
-
-        @client = Mongo::Client.new(['127.0.0.1:27017'], database: @database)
+        @aggregate_name = config[:aggregate_name].snakecase || nil
+        @client = config[:client]
       end
 
       def create_aggregate(attributes)
@@ -162,7 +161,7 @@ module EventSourced
       end
 
       def client
-        @client ||= Mongo::Client.new(['127.0.0.1:27017'], database: @database)
+        @client ||= Mongo::Client.new(['127.0.0.1:27017'], database: 'event-store')
       end
 
       def db
