@@ -6,6 +6,32 @@ AwesomePrint.defaults = {
   ruby19_syntax: true,
 }
 
+Kernel.module_exec do
+  def ap(obj, options = {})
+    if json_string?(obj)
+      ap_json_string(obj, options)
+    else
+      awesome_print(obj, options)
+    end
+  end
+
+  private
+
+  def json_string?(obj)
+    obj.is_a?(String) && CGI.unescape(obj) =~ /\A\s?{".+?}\Z/
+  end
+
+  def ap_json_string(obj, options)
+    if system('which jq > /dev/null')
+      system "echo '#{obj}' | jq ."
+    else
+      puts JSON.pretty_generate(obj).white
+    end
+  rescue
+    awesome_print(obj, options)
+  end
+end
+
 require 'event_sourced'
 require 'erb'
 
@@ -52,7 +78,7 @@ def run_examples(example_description:, repository:)
   puts "\n## Should find items from factory:".white
   puts " - Note, no :sequence_number because this is a 'raw' event.".blue
   puts "Command Factory: #{EventSourced::Command::Factory.for('CreateInventoryItem')}".green
-  ap EventSourced::Event::Factory.build('InventoryItemCreated', INVENTORY_ITEM_CREATED).to_h
+  ap EventSourced::Event::Factory.build('InventoryItemCreated', INVENTORY_ITEM_CREATED).to_h.to_json
 
   puts "\n## Should return nils:".white
   ap EventSourced::Command::Factory.for('NibblePuddle')
