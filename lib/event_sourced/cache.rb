@@ -15,8 +15,8 @@ module EventSourced
       return result
     end
 
-    def put(id, data)
-      @cache_backend.put(id, data)
+    def put(id, value)
+      @cache_backend.put(id, value)
     end
   end
 end
