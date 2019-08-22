@@ -17,7 +17,6 @@ module EventSourced
       def handles_message?(message)
         message_map.keys.include? message.class
       end
-
     end
 
     def self.included(base)
@@ -25,8 +24,15 @@ module EventSourced
     end
 
     def handle_message(*args)
-      handlers = self.class.message_map[args.first.class]
-      handlers.each {|handler| self.instance_exec(*args, &handler) } if handlers
+      klass = args.first.class
+      handlers = self.class.message_map[klass]
+
+      unless handlers
+        EventSourced::Logger.warn("Unhandled message: #{klass.name}")
+        return nil
+      end
+
+      handlers.each {|handler| self.instance_exec(*args, &handler) }
     end
   end
 end

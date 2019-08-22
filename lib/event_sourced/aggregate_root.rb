@@ -73,12 +73,10 @@ module EventSourced
     end
 
     def apply(event, new_event: true)
-      return unless handles_event?(event)
-
       if new_event
         event.sequence_number = @sequence_number + 1
-        event.aggregate_id          = @id
-        event.aggregate_type        = @type
+        event.aggregate_id    = @id
+        event.aggregate_type  = @type
       end
 
       handle_message(event)
@@ -93,10 +91,6 @@ module EventSourced
       return unless event
 
       apply(event, new_event)
-    end
-
-    def handles_event?(event)
-      self.class.handles_message?(event)
     end
 
     def save
