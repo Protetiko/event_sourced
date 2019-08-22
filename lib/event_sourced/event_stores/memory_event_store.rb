@@ -92,7 +92,7 @@ module EventSourced
 
       def append_events(events)
         if events.is_a? Array
-          events.eac {|e| append_event(e) }
+          events.each {|e| append_event(e) }
         else
           append_event(events)
         end
