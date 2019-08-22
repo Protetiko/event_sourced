@@ -2,21 +2,27 @@
 
 module EventSourced
   class Cache
-    def initialize(backend)
-      @cache_backend = backend
+    def initialize(backend = nil)
+      @cache_backend = backend || EventSourced.configuration.cache_backend
     end
 
-    def get(id, &block)
-      return @cache_backend.get(id) if @cache_backend.key?(id)
+    Joiner = ->(namespace, key) { namespace ? "#{namespace}.#{key}" : key.to_s }
+
+    def get(key, namespace: nil, &block)
+      key = Joiner.call(namespace, key)
+
+      return @cache_backend.get(key) if @cache_backend.key?(key)
       return nil unless block_given?
 
       result = yield(block)
-      put(id, result) if result
+      put(key, result) if result
       return result
     end
 
-    def put(id, value)
-      @cache_backend.put(id, value)
+    def put(key, value, namespace: nil)
+      key = Joiner.call(namespace, key)
+
+      @cache_backend.put(key, value)
     end
   end
 end
