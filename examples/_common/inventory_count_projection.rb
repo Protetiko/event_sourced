@@ -8,7 +8,7 @@ class InventoryCountProjection < EventSourced::Projection
   CountEntity = Struct.new(:id, :count)
 
   def initialize
-    @entity = CountEntity.new
+    @entity = CountEntity.new(nil, 0)
   end
 
   on InventoryItemCreated do |event|

@@ -12,6 +12,13 @@ class InventoryItem < EventSourced::AggregateRoot
   attr_reader :stock
   attr_reader :in_stock
 
+  def initialize(id:, sequence_number: 0)
+    @stock    = 0
+    @in_stock = false
+
+    super(id: id, sequence_number: sequence_number)
+  end
+
   on InventoryItemCreated do |event|
     @id          = event.aggregate_id
     @created_at  = event.timestamp

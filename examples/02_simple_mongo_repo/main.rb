@@ -12,7 +12,7 @@ InventoryItemRepository = EventSourced::Repository.new(
   aggregate: InventoryItem,
   store: EventSourced::EventStores::MongoEventStore.new(
     aggregate_name: 'InventoryItem',
-    client: Mongo::Client.new(['127.0.0.1:27017'], database: @database)
+    client: Mongo::Client.new(['127.0.0.1:27017'], database: 'es_examples')
   )
 )
 InventoryItemRepository.drop_all!

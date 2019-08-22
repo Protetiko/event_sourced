@@ -7,6 +7,7 @@ AwesomePrint.defaults = {
 }
 
 require 'event_sourced'
+require 'erb'
 
 require_relative '../_common/commands.rb'
 require_relative '../_common/events.rb'
@@ -15,6 +16,10 @@ require_relative '../_common/inventory_item.rb'
 require_relative '../_common/messages.rb'
 require_relative '../_common/inventory_count_projection.rb'
 require_relative '../_common/item_description_projection.rb'
+
+def message(template_name)
+  ERB.new(File.read("messages/#{template_name}.json.erb")).result
+end
 
 def run_examples(example_description:, repository:)
   puts "\n#### Running examples for: #{example_description}".purple
@@ -39,7 +44,7 @@ def run_examples(example_description:, repository:)
   # puts "\n## Should dump all events:".white
   # event_repository.dump
 
-  puts "\n## Aggregate record::".white
+  puts "\n## Aggregate record:".white
   ap repository.read_aggregate(AGGREGATE_ID).to_h
   puts "\n## Aggregate root:".white
   ap InventoryItem.load(AGGREGATE_ID).to_h
