@@ -13,7 +13,6 @@ module EventSourced
 
     include EventSourced::Message
 
-    attr_accessor :id
     attr_accessor :type
     attr_accessor :command_id
     attr_accessor :aggregate_id
@@ -28,12 +27,12 @@ module EventSourced
     def initialize(message = {})
       message = Validators::EventMessage.validate!(message)
 
-      @type           = self.class.name
-      @aggregate_id   = message[:aggregate_id]
-      @aggregate_type = message[:aggregate_type]
-      @command_id     = message[:command_id]
-      @correlation_id = message[:correlation_id] || @command_id
-      @causation_id   = @command_id
+      @type            = self.class.name
+      @aggregate_id    = message[:aggregate_id]
+      @aggregate_type  = message[:aggregate_type]
+      @command_id      = message[:command_id]
+      @correlation_id  = message[:correlation_id] || @command_id
+      @causation_id    = @command_id
       @sequence_number = message[:sequence_number]
 
       timestamp = message[:timestamp] || DateTime.now.utc.round(3)
