@@ -13,9 +13,13 @@ module EventSourced
     EventStoreNotConfigured = Class.new(StandardError)
     InvalidAggregateRoot    = Class.new(StandardError)
 
+    attr_reader :aggregate_klass, :store
+
     def initialize(aggregate:, store:)
       @aggregate_klass = aggregate
       @store           = store
+
+      @aggregate_klass.repository = self
     end
 
     def create_aggregate(attributes)
@@ -107,21 +111,21 @@ module EventSourced
     end
   end
 
-  module RepoSetup
-    module ClassMethods
-      def repository
-        @repository ||= Repository.new(aggregate: self, store: @event_store)
-      end
+  # module RepoSetup
+  #   module ClassMethods
+  #     def repository
+  #       @repository ||= Repository.new(aggregate: self, store: @event_store)
+  #     end
 
-      attr_accessor :event_store
-    end
+  #     attr_accessor :event_store
+  #   end
 
-    def self.included(base)
-      base.extend ClassMethods
-    end
+  #   def self.included(base)
+  #     base.extend ClassMethods
+  #   end
 
-    def repository
-      self.class.repository
-    end
-  end
+  #   def repository
+  #     self.class.repository
+  #   end
+  # end
 end

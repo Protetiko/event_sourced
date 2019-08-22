@@ -26,8 +26,14 @@ module EventSourced
     # end
 
     class << self
+      attr_accessor :repository
+
       def inherited(base)
-        base.include EventSourced::RepoSetup
+        # base.include EventSourced::RepoSetup
+      end
+
+      def repository
+        @repository || nil
       end
 
       def create(aggregate_id)
@@ -70,6 +76,10 @@ module EventSourced
       @type                  = self.class.name
       @sequence_number       = sequence_number
       @uncommitted_events    = []
+    end
+
+    def repository
+      self.class.repository
     end
 
     def apply(event, new_event: true)
