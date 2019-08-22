@@ -93,7 +93,7 @@ module EventSourced
       end
 
       def event_stream(aggregate_id)
-        events = events_collection.find(aggregate_id: aggregate_id).sort(timestamp: 1)
+        events = events_collection.find(aggregate_id: aggregate_id).sort(sequence_number: 1)
 
         events = events.map do |event|
           e = Hash[event.to_h]
