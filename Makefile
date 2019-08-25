@@ -13,3 +13,6 @@ example02:
 .PHONY: test
 test:
 	@bundle exec rake test
+
+fury:
+	git push fury master
