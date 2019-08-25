@@ -12,6 +12,7 @@ require 'event_sourced/repository'
 require 'event_sourced/command_handler'
 require 'event_sourced/aggregate_root'
 require 'event_sourced/projection'
+require 'event_sourced/projection_cachable'
 require 'event_sourced/event_stores/memory_event_store'
 require 'event_sourced/event_stores/mongo_event_store'
 
