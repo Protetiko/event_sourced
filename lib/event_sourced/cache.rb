@@ -24,5 +24,9 @@ module EventSourced
 
       @cache_backend.put(key, value)
     end
+
+    def delete(key)
+      @cache_backend.delete(key)
+    end
   end
 end
