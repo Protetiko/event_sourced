@@ -29,10 +29,12 @@ module EventSourced
 
       unless handlers
         EventSourced::Logger.warn("Unhandled message: #{klass.name}")
-        return nil
+        return false
       end
 
       handlers.each {|handler| self.instance_exec(*args, &handler) }
+
+      return true
     end
   end
 end
