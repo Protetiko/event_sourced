@@ -14,6 +14,11 @@ module EventSourced
       def respond_to_missing?(method_name, include_private = false)
         logger && logger.respond_to?(method_name)
       end
+
+      def logger
+        @logger || EventSourced.configuration.logger
+      end
+
     end
   end
 end
