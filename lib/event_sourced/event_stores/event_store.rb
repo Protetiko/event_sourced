@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'event_sourced/utils/interface_helper'
+# require 'event_sourced/utils/interface_helper'
 
 module EventSourced
   module EventStores
