@@ -78,12 +78,12 @@ module EventSourced
       aggregate.load_from_events(stream(aggregate_id))
     end
 
-    def raw_event_stream(aggregate_id)
-      store.event_stream(aggregate_id)
+    def raw_event_stream(aggregate_id, from: 0, to: nil)
+      store.event_stream(aggregate_id, from: from, to: to)
     end
 
-    def event_stream(aggregate_id)
-      events = raw_event_stream(aggregate_id)&.map do |record|
+    def event_stream(aggregate_id, from: 0, to: nil)
+      events = raw_event_stream(aggregate_id, from: from, to: to)&.map do |record|
         EventSourced::Event::Factory.build!(record[:type], record)
       end
 
