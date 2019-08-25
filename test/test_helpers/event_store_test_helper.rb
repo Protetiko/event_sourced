@@ -80,7 +80,8 @@ class EventStoreTest < MiniTest::Test
       assert event_store.respond_to? :append_command
       assert event_store.respond_to? :append_event
       assert event_store.respond_to? :append_events
-      assert event_store.respond_to? :read_stream
+      assert event_store.respond_to? :last_event
+      assert event_store.respond_to? :event_stream
       assert event_store.respond_to? :destroy_all!
       assert event_store.respond_to? :destroy_aggregate!
     end

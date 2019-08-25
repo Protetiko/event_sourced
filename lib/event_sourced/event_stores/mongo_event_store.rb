@@ -92,8 +92,21 @@ module EventSourced
         return result.inserted_count
       end
 
-      def event_stream(aggregate_id)
-        events = events_collection.find(aggregate_id: aggregate_id).sort(sequence_number: 1)
+      def last_event(aggregate_id)
+        event = events_collection.find(aggregate_id: aggregate_id).sort(sequence_number: -1).first
+        e = Hash[event.to_h]
+        e.symbolize_keys!
+        e.delete(:_id)
+        return e
+      end
+
+      def event_stream(aggregate_id, from: 0, to: nil)
+        query = []
+        query << { aggregate_id: aggregate_id }
+        query << { sequence_number: { '$gte': from } } if from > 0
+        query << { sequence_number: { '$lte': to } } if to
+
+        events = events_collection.find('$and': query).sort(sequence_number: 1)
 
         events = events.map do |event|
           e = Hash[event.to_h]

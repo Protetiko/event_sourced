@@ -13,7 +13,7 @@ module EventSourced
       end
 
       def create_aggregate(attributes)
-        raise(CreateAggregateRecordFailed, 'Aggregate update attributes must be a Hash') unless attributes.is_a?(Hash)
+        raise(CreateAggregateRecordFailed, 'create_aggregate attributes must be a Hash') unless attributes.is_a?(Hash)
 
         attributes = Hash[attributes]
         id = attributes[:id]
@@ -29,7 +29,7 @@ module EventSourced
       end
 
       def update_aggregate(aggregate_id, attributes)
-        raise(UpdateAggregateRecordFailed, 'Aggregate update attributes must be a Hash') unless attributes.is_a?(Hash)
+        raise(UpdateAggregateRecordFailed, 'update_aggregate attributes must be a Hash') unless attributes.is_a?(Hash)
 
         aggregate = aggregate_store[aggregate_id]
         attributes.each_pair do |k, v|
@@ -98,13 +98,26 @@ module EventSourced
         end
       end
 
-      def event_stream(aggregate_id)
-        events = event_store[aggregate_id]&.map do |event|
+      def last_event(aggregate_id)
+        event_store[aggregate_id].last
+
+        e = Hash[event.to_h]
+        e.symbolize_keys!
+        e.delete(:id)
+
+        return e
+      end
+
+      def event_stream(aggregate_id, from: 0, to: nil)
+        events = event_store[aggregate_id]&.reject {|event|
+          event[:sequence_number] < from ||
+            (to && event[:sequence_number] > to)
+        }&.map { |event|
           e = Hash[event.to_h]
           e.symbolize_keys!
           e.delete(:id)
           e
-        end
+        }
 
         return events
       end
