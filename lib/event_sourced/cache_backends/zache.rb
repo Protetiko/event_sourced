@@ -5,8 +5,8 @@ require 'zache'
 module EventSourced
   module CacheBackends
     class Zache
-      def initialize(client: nil, **opts)
-        @client = client
+      def initialize(**opts)
+        @client = Zache.new
       end
 
       def key?(key)

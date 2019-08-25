@@ -5,12 +5,12 @@ require 'redis'
 module EventSourced
   module CacheBackends
     class Redis
-      def initialize(client: nil, opts = {})
+      def initialize(client: , **opts)
         @client = client
       end
 
       def key?(key)
-        @client.key?(key)
+        @client.exists(key)
       end
 
       def get(key)
@@ -18,7 +18,7 @@ module EventSourced
       end
 
       def put(key, value, ttl=nil)
-        @client.put(key, value)
+        @client.set(key, value)
       end
     end
   end
