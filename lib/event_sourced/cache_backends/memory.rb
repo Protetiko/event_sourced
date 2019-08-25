@@ -26,13 +26,14 @@ module EventSourced
         return true
       end
 
+      def delete(key)
+        @data.delete key
+      end
+
       # def keys
       #   @data.keys
       # end
 
-      # def delete(key)
-      #   @data.delete key
-      # end
 
       # def clear
       #   @data = Hash.new

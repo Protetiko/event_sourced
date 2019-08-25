@@ -14,6 +14,10 @@ module EventSourced
       def put(key, value, ttl=nil)
         true
       end
+
+      def delete(key)
+        true
+      end
     end
   end
 end

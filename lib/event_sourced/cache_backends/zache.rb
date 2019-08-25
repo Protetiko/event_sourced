@@ -20,6 +20,10 @@ module EventSourced
       def put(key, value, ttl=nil)
         @client.put(key, value)
       end
+
+      def delete(key)
+        @client.remove(key)
+      end
     end
   end
 end
