@@ -6,7 +6,7 @@ module EventSourced
   class AggregateRoot
     include EventSourced::MessageHandler
 
-    attr_reader :id, :type, :event_sequence_number, :uncommitted_events, :created_at
+    attr_reader :id, :type, :sequence_number, :uncommitted_events, :created_at
 
     # class Snapshot
     #   def self.load
@@ -26,8 +26,14 @@ module EventSourced
     # end
 
     class << self
+      attr_accessor :repository
+
       def inherited(base)
-        base.include EventSourced::RepoSetup
+        # base.include EventSourced::RepoSetup
+      end
+
+      def repository
+        @repository || nil
       end
 
       def create(aggregate_id)
@@ -41,8 +47,8 @@ module EventSourced
         return nil unless events.present?
 
         aggregate = new(
-          id: events.first.aggregate_id,
-          event_sequence_number: events.last.event_sequence_number
+          id:              events.first.aggregate_id,
+          sequence_number: events.last.sequence_number
         )
 
         events.each do |event|
@@ -65,25 +71,27 @@ module EventSourced
       end
     end
 
-    def initialize(id:, event_sequence_number: 0)
+    def initialize(id:, sequence_number: 0)
       @id                    = id
       @type                  = self.class.name
-      @event_sequence_number = event_sequence_number
+      @sequence_number       = sequence_number
       @uncommitted_events    = []
     end
 
-    def apply(event, new_event: true)
-      return unless handles_event?(event)
+    def repository
+      self.class.repository
+    end
 
+    def apply(event, new_event: true)
       if new_event
-        event.event_sequence_number = @event_sequence_number + 1
-        event.aggregate_id          = @id
-        event.aggregate_type        = @type
+        event.sequence_number = @sequence_number + 1
+        event.aggregate_id    = @id
+        event.aggregate_type  = @type
       end
 
       handle_message(event)
 
-      @event_sequence_number = event.event_sequence_number
+      @sequence_number = event.sequence_number
       @uncommitted_events << event if new_event
     end
 
@@ -95,10 +103,6 @@ module EventSourced
       apply(event, new_event)
     end
 
-    def handles_event?(event)
-      self.class.handles_message?(event)
-    end
-
     def save
       repository.append_events(@uncommitted_events)
       @uncommitted_events = []
@@ -106,9 +110,9 @@ module EventSourced
 
     def to_h
       {
-        id: @id,
-        type: @type,
-        event_sequence_number: @event_sequence_number,
+        id:              @id,
+        type:            @type,
+        sequence_number: @sequence_number,
       }
     end
 

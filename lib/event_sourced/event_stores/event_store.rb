@@ -1,14 +1,20 @@
 # frozen_string_literal: true
 
+# require 'event_sourced/utils/interface_helper'
+
 module EventSourced
   module EventStores
     class EventStore
-      MethodNotImplemented        = Class.new(StandardError)
+      # extend Interface
+
       CreateAggregateRecordFailed = Class.new(StandardError)
       AggregateRecordNotFound     = Class.new(StandardError)
       InvalidEventCollection      = Class.new(StandardError)
       UpdateAggregateRecordFailed = Class.new(StandardError)
       SnapshotNotFound            = Class.new(StandardError)
+
+      # method :create_aggregate,
+      # method :read_aggregate
 
       def create_aggregate(aggregate)
         raise MethodNotImplemented
@@ -43,14 +49,22 @@ module EventSourced
       end
 
       def append_event(event)
-          raise MethodNotImplemented
+        raise MethodNotImplemented
       end
 
       def append_events(events)
         raise MethodNotImplemented
       end
 
-      def read_stream(aggregate_id)
+      def last_event(aggregate_id)
+        raise MethodNotImplemented
+      end
+
+      def raw_event_stream(aggregate_id, from:)
+        raise MethodNotImplemented
+      end
+
+      def event_stream(aggregate_id, from:)
         raise MethodNotImplemented
       end
 

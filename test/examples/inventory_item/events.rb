@@ -2,7 +2,13 @@
 
 require 'event_sourced/event'
 
-class InventoryItemCreated < EventSourced::Event
+class ItemCreated < EventSourced::Event
+  builder do |data|
+
+  end
+end
+
+class DescriptionSet < EventSourced::Event
   field :description
 
   builder do |data|
@@ -10,15 +16,25 @@ class InventoryItemCreated < EventSourced::Event
   end
 end
 
-class InventoryItemUpdated < EventSourced::Event
-  field :description
+class VendorSet < EventSourced::Event
+  field :vendor_id
+  field :vendor_name
 
   builder do |data|
-    self.description = data[:description]
+    self.vendor_id   = data[:vendor_id]
+    self.vendor_name = data[:vendor_name]
+  end
+end
+class RetailPriceSet < EventSourced::Event
+  field :price
+
+  builder do |data|
+    self.price = data[:price]
+    self.price_updated_at = data[:timestamp]
   end
 end
 
-class InventoryItemRestocked < EventSourced::Event
+class InventoryRestocked < EventSourced::Event
   field :count
 
   builder do |data|
@@ -26,7 +42,7 @@ class InventoryItemRestocked < EventSourced::Event
   end
 end
 
-class InventoryItemWithdrawn < EventSourced::Event
+class InventoryWithdrawn < EventSourced::Event
   field :count
 
   builder do |data|

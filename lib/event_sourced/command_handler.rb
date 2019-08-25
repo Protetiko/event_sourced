@@ -17,17 +17,13 @@ module EventSourced
     end
 
     def handle_raw_command(message)
-      if Validators::CommandMessage.valid?(message)
-        command = Command::Factory.build!(message[:type], message)
-        handle_message(command)
-      else
-        raise InvalidCommand.new
-      end
+      raise InvalidCommand unless Validators::CommandMessage.valid?(message)
+
+      command = Command::Factory.build!(message[:type], message)
+      handle_message(command)
     end
 
     def handle(command)
-      raise(UnhandledCommand, command.to_json) unless handles_command?(command)
-
       aggregate_root.load_and_yield(command.aggregate_id) do |aggregate|
         handle_message(command, aggregate)
       end
@@ -47,12 +43,6 @@ module EventSourced
 
     def repository
       aggregate_root.repository || raise(RepositoryNotSet)
-    end
-
-    private
-
-    def handles_command?(command)
-      self.class.handles_message?(command)
     end
   end
 end

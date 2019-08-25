@@ -13,9 +13,13 @@ module EventSourced
     EventStoreNotConfigured = Class.new(StandardError)
     InvalidAggregateRoot    = Class.new(StandardError)
 
+    attr_reader :aggregate_klass, :store
+
     def initialize(aggregate:, store:)
       @aggregate_klass = aggregate
       @store           = store
+
+      @aggregate_klass.repository = self
     end
 
     def create_aggregate(attributes)
@@ -38,7 +42,7 @@ module EventSourced
     end
 
     def save_snapshot(aggregate_root)
-      raise InvalidAggregateRoot unless aggregate_root.kind_of?(AggregateRoot)
+      raise InvalidAggregateRoot unless aggregate_root.is_a?(AggregateRoot)
 
       snapshot = Models::Snapshot.new
 
@@ -48,11 +52,12 @@ module EventSourced
       snapshot.data         = Base64.encode64(Marshal.dump(aggregate_root))
 
       result = store.save_snapshot(snapshot.to_h)
-      store.update_aggregate(aggregate_root.id, { last_snapshot_id: result[:id] })
+      store.update_aggregate(aggregate_root.id, last_snapshot_id: result[:id])
     end
 
     def read_snapshot(aggregate_id)
       return nil unless aggregate_id
+
       return Marshal.load(Base64.decode64(store.read_aggregate(aggregate_id)[:data]))
     end
 
@@ -73,12 +78,17 @@ module EventSourced
       aggregate.load_from_events(stream(aggregate_id))
     end
 
-    def raw_event_stream(aggregate_id)
-      store.event_stream(aggregate_id)
+    def last_event(aggregate_id)
+      event = store.last_event(aggregate_id)
+      return EventSourced::Event::Factory.build!(event[:type], event)
     end
 
-    def event_stream(aggregate_id)
-      events = raw_event_stream(aggregate_id)&.map do |record|
+    def raw_event_stream(aggregate_id, from: 0, to: nil)
+      store.event_stream(aggregate_id, from: from, to: to)
+    end
+
+    def event_stream(aggregate_id, from: 0, to: nil)
+      events = raw_event_stream(aggregate_id, from: from, to: to)&.map do |record|
         EventSourced::Event::Factory.build!(record[:type], record)
       end
 
@@ -95,32 +105,33 @@ module EventSourced
       store.destroy_aggregate!(aggregate_id)
     end
 
+    def store
+      @store || raise(EventStoreNotConfigured)
+    end
+
     private
 
     def current_timestamp
       Time.now.utc.round(3)
     end
 
-    def store
-      @store || raise(EventStoreNotConfigured)
-    end
   end
 
-  module RepoSetup
-    module ClassMethods
-      def repository
-        @repository ||= Repository.new(aggregate: self, store: @event_store)
-      end
+  # module RepoSetup
+  #   module ClassMethods
+  #     def repository
+  #       @repository ||= Repository.new(aggregate: self, store: @event_store)
+  #     end
 
-      attr_accessor :event_store
-    end
+  #     attr_accessor :event_store
+  #   end
 
-    def self.included(base)
-      base.extend ClassMethods
-    end
+  #   def self.included(base)
+  #     base.extend ClassMethods
+  #   end
 
-    def repository
-      self.class.repository
-    end
-  end
+  #   def repository
+  #     self.class.repository
+  #   end
+  # end
 end

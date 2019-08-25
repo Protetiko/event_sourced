@@ -1,37 +1,36 @@
 # frozen_string_literal: true
 
-require 'event_sourced/event_stores/event_store'
 require 'mongo'
+require 'event_sourced/event_stores/event_store'
+require 'event_sourced/utils/extensions/string'
 
 module EventSourced
   module EventStores
     class MongoEventStore < EventStore
       def initialize(config = {})
-        @database       = config[:database]  || 'event-store'
-        @aggregate_name = config[:aggregate_name] || nil
-
-        @client = Mongo::Client.new(['127.0.0.1:27017'], database: @database)
+        @aggregate_name = config[:aggregate_name].snakecase || nil
+        @client = config[:client]
       end
 
       def create_aggregate(attributes)
-        raise(CreateAggregateRecordFailed, "Aggregate update attributes must be a Hash") unless attributes.is_a?(Hash)
+        raise(CreateAggregateRecordFailed, 'Aggregate update attributes must be a Hash') unless attributes.is_a?(Hash)
 
         attributes = Hash[attributes]
-        attributes[:_id] = attributes.delete(:id) #MongoDB specific ID here
+        attributes[:_id] = attributes.delete(:id) # MongoDB specific ID here
 
         begin
           aggregates_collection.insert_one(attributes)
         rescue Mongo::Error::OperationFailure => _e
-          raise CreateAggregateRecordFailed, "Failed to create Aggregate record: Duplicate ID."
+          raise CreateAggregateRecordFailed, 'Failed to create Aggregate record: Duplicate ID.'
         rescue
-          raise CreateAggregateRecordFailed, "Failed to create Aggregate record: Unknown DB error."
+          raise CreateAggregateRecordFailed, 'Failed to create Aggregate record: Unknown DB error.'
         end
       end
 
       def read_aggregate(aggregate_id)
         result = aggregates_collection.find(_id: aggregate_id)
 
-        raise(AggregateRecordNotFound, "Aggregate with id #{aggregate_id} not found") if result.count == 0
+        raise(AggregateRecordNotFound, "Aggregate with id #{aggregate_id} not found") if result.count.zero?
 
         aggregate = result.first.symbolize_keys
         aggregate[:id] = aggregate.delete(:_id).to_s
@@ -39,14 +38,14 @@ module EventSourced
       end
 
       def update_aggregate(aggregate_id, attributes)
-        raise(UpdateAggregateRecordFailed, "Aggregate update attributes must be a Hash") unless attributes.is_a?(Hash)
+        raise(UpdateAggregateRecordFailed, 'Aggregate update attributes must be a Hash') unless attributes.is_a?(Hash)
 
-        aggregates_collection.find(_id: aggregate_id).update_one( '$set' => attributes )
+        aggregates_collection.find(_id: aggregate_id).update_one('$set' => attributes)
       end
 
       def save_snapshot(snapshot)
         id = EventSourced::UUID.generate
-        attributes = {_id: id, **snapshot}
+        attributes = { _id: id, **snapshot }
         snapshots_collection.insert_one(attributes)
         return { id: id.to_s, **snapshot }
       end
@@ -58,7 +57,7 @@ module EventSourced
       end
 
       def read_last_snapshot(aggregate_id)
-        snapshot = snapshots_collection.find(aggregate_id: aggregate_id).sort(:created_at => -1).first.symbolize_keys
+        snapshot = snapshots_collection.find(aggregate_id: aggregate_id).sort(created_at: -1).first.symbolize_keys
         snapshot[:id] = snapshot.delete(:_id).to_s
         return snapshot
       end
@@ -88,12 +87,26 @@ module EventSourced
 
       def append_events(events)
         raise InvalidEventCollection unless events.is_a? Array
-        result = events_collection.insert_many(events.map{|e| e.to_h })
+
+        result = events_collection.insert_many(events.map(&:to_h))
         return result.inserted_count
       end
 
-      def event_stream(aggregate_id)
-        events = events_collection.find(aggregate_id: aggregate_id).sort(timestamp: 1)
+      def last_event(aggregate_id)
+        event = events_collection.find(aggregate_id: aggregate_id).sort(sequence_number: -1).first
+        e = Hash[event.to_h]
+        e.symbolize_keys!
+        e.delete(:_id)
+        return e
+      end
+
+      def event_stream(aggregate_id, from: 0, to: nil)
+        query = []
+        query << { aggregate_id: aggregate_id }
+        query << { sequence_number: { '$gte': from } } if from > 0
+        query << { sequence_number: { '$lte': to } } if to
+
+        events = events_collection.find('$and': query).sort(sequence_number: 1)
 
         events = events.map do |event|
           e = Hash[event.to_h]
@@ -116,6 +129,7 @@ module EventSourced
 
       def destroy_aggregate!(aggregate_id)
         return false unless aggregate_id
+
         aggregates_collection.delete_one(_id: aggregate_id)
         snapshots_collection.delete_many(aggregate_id: aggregate_id)
         commands_collection.delete_many(aggregate_id: aggregate_id)
@@ -124,24 +138,25 @@ module EventSourced
         return true
       end
 
-      def create_indexes()
+      def create_indexes
         Support.create_indexes(
           OpenStruct.new(
             aggregates: aggregates_collection,
-            commands: commands_collection,
-            events: events_collection,
-            snapshots: snapshots_collection,
+            commands:   commands_collection,
+            events:     events_collection,
+            snapshots:  snapshots_collection
           )
         )
       end
 
-      def create_validators()
-        Support.create_validators(db,
+      def create_validators
+        Support.create_validators(
+          db,
           OpenStruct.new(
             aggregates: aggregates_collection_name,
-            commands: commands_collection_name,
-            events: events_collection_name,
-            snapshots: snapshots_collection_name,
+            commands:   commands_collection_name,
+            events:     events_collection_name,
+            snapshots:  snapshots_collection_name
           )
         )
       end
@@ -159,28 +174,27 @@ module EventSourced
       end
 
       def client
-        @client ||= Mongo::Client.new(['127.0.0.1:27017'], database: @database)
+        @client ||= Mongo::Client.new(['127.0.0.1:27017'], database: 'event-store')
       end
 
       def db
         @db ||= client.database
       end
 
-
       def events_collection_name
-        @aggregate_name ? "#{@aggregate_name}_events" : "events"
+        @aggregate_name ? "#{@aggregate_name}_events" : 'events'
       end
 
       def commands_collection_name
-        @aggregate_name ? "#{@aggregate_name}_commands" : "commands"
+        @aggregate_name ? "#{@aggregate_name}_commands" : 'commands'
       end
 
       def aggregates_collection_name
-        @aggregate_name ? "#{@aggregate_name}_aggregates" : "aggregates"
+        @aggregate_name ? "#{@aggregate_name}_aggregates" : 'aggregates'
       end
 
       def snapshots_collection_name
-        @aggregate_name ? "#{@aggregate_name}_snapshots" : "snapshots"
+        @aggregate_name ? "#{@aggregate_name}_snapshots" : 'snapshots'
       end
 
       def events_collection

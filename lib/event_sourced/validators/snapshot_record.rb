@@ -7,7 +7,7 @@ module EventSourced
         Dry::Validation.Params(Validators::BaseSchema) do
           required(:aggregate_id).filled(:str?)
           required(:aggregate_type).filled(:str?)
-          required(:event_sequence_number).filled(:int?)
+          required(:sequence_number).filled(:int?)
           optional(:data).filled(:hash?)
           required(:created_at) { filled? & (str? | time?) }
         end

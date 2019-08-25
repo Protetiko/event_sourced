@@ -8,21 +8,16 @@ end
 class RepositoryTest < MiniTest::Test
   include EventSourced::Examples
 
-  let(:event_store) {
-    EventSourced::EventStores::MemoryEventStore.new
-  }
-
   let(:repository) {
-    DummyItem.repository
+    EventSourced::Repository.new(
+      aggregate: DummyItem,
+      store: EventSourced::EventStores::MemoryEventStore.new
+    )
   }
 
   let(:aggregate_id) {
     EventSourced::UUID.generate
   }
-
-  def setup
-    DummyItem.event_store = event_store
-  end
 
   def test_interface
     assert repository.respond_to? :create_aggregate

@@ -9,11 +9,23 @@ Metrics/BlockLength:
 Metrics/LineLength:
   Max: 120
 
+Metrics/MethodLength:
+  Max: 50
+
+Metrics/ClassLength:
+  Max: 250
+
 Style/SafeNavigation:
   Enabled: false
 
 Layout/SpaceInsideBlockBraces:
   SpaceBeforeBlockParameters: false
+
+Layout/AlignHash:
+  EnforcedColonStyle: table
+
+Layout/EndOfLine:
+  EnforcedStyle: lf
 
 Style/Documentation:
   Enabled: false
@@ -22,4 +34,13 @@ Style/RedundantReturn:
   Enabled: false
 
 Style/TrailingCommaInHashLiteral:
+  Enabled: false
+
+Style/TrailingCommaInArrayLiteral:
+  Enabled: false
+
+Style/UnneededSort:
+  Enabled: false
+
+Security/MarshalLoad:
   Enabled: false

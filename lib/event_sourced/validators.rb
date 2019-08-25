@@ -12,6 +12,7 @@ module EventSourced
       module ClassMethods
         def set_validator(v)
           raise(InvalidValidator, 'Validator must respond to :call method') unless v.respond_to?(:call)
+
           @validator = v
         end
 
@@ -39,7 +40,7 @@ module EventSourced
     class BaseSchema < Dry::Validation::Schema
       configure do |_|
         def included_in_case_ignored?(list, input)
-          list.any?{ |s| s.casecmp(input) == 0 }
+          list.any? {|s| s.casecmp(input).zero? }
         end
 
         def id?(value)

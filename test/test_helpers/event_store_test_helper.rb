@@ -60,7 +60,7 @@ class EventStoreTest < MiniTest::Test
       :data,
       :meta_data,
       :timestamp,
-      :event_sequence_number,
+      :sequence_number,
     ]
 
     def teardown
@@ -80,7 +80,8 @@ class EventStoreTest < MiniTest::Test
       assert event_store.respond_to? :append_command
       assert event_store.respond_to? :append_event
       assert event_store.respond_to? :append_events
-      assert event_store.respond_to? :read_stream
+      assert event_store.respond_to? :last_event
+      assert event_store.respond_to? :event_stream
       assert event_store.respond_to? :destroy_all!
       assert event_store.respond_to? :destroy_aggregate!
     end
@@ -118,7 +119,7 @@ class EventStoreTest < MiniTest::Test
       snapshot_attributes = {
         aggregate_id: aggregate_id,
         aggregate_type: 'Company',
-        event_sequence_number: 10,
+        sequence_number: 10,
         data: {
           'name' => 'Protetiko',
           'industry' => 'Medtech',
@@ -138,7 +139,7 @@ class EventStoreTest < MiniTest::Test
       assert_equal snapshot1.sort, snapshot2.sort
 
       snapshot_attributes2 = snapshot_attributes.merge(
-        event_sequence_number: 11,
+        sequence_number: 11,
         data: {
           'name' => 'Protetiko',
           'industry' => 'Social media marketing'
@@ -201,6 +202,7 @@ class EventStoreTest < MiniTest::Test
         correlation_id: EventSourced::UUID.generate,
         causation_id:   EventSourced::UUID.generate,
         timestamp:      current_time,
+        sequence_number: 0,
         data: {
           "name" => "Protetiko",
           "industry" => "Medtech",

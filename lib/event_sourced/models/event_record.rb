@@ -8,7 +8,7 @@ module EventSourced
     # .new(
     #   :aggregate_id,
     #   :aggregate_type,
-    #   :event_sequence_number,
+    #   :sequence_number,
     #   :type,
     #   :command_id,
     #   :correlation_id,

@@ -13,8 +13,8 @@ class InventoryCommandHandler < EventSourced::CommandHandler
     end
   end
 
-  on UpdateInventoryItem do |command, item|
-    item.apply InventoryItemUpdated.new(command.to_h)
+  on SetItemDescription do |command, item|
+    item.apply ItemDescriptionSet.new(command.to_h)
   end
 
   on RestockInventoryItem do |command, item|
