@@ -6,7 +6,7 @@ module EventSourced
   module CacheBackends
     class Zache
       def initialize(**opts)
-        @client = Zache.new
+        @client = ::Zache.new
       end
 
       def key?(key)
