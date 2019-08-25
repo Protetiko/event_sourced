@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'event_sourced/cache_backends/null_backend'
+require 'event_sourced/cache_backends/null_cache'
 
 module EventSourced
   class Configuration
