@@ -105,15 +105,16 @@ module EventSourced
       store.destroy_aggregate!(aggregate_id)
     end
 
+    def store
+      @store || raise(EventStoreNotConfigured)
+    end
+
     private
 
     def current_timestamp
       Time.now.utc.round(3)
     end
 
-    def store
-      @store || raise(EventStoreNotConfigured)
-    end
   end
 
   # module RepoSetup

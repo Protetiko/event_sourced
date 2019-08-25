@@ -202,6 +202,7 @@ class EventStoreTest < MiniTest::Test
         correlation_id: EventSourced::UUID.generate,
         causation_id:   EventSourced::UUID.generate,
         timestamp:      current_time,
+        sequence_number: 0,
         data: {
           "name" => "Protetiko",
           "industry" => "Medtech",

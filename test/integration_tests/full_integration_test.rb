@@ -2,11 +2,20 @@
 
 require 'test_helper'
 
-event_store ||= EventSourced::EventStores::MongoEventStore.new(aggregate_name: 'item')
-Item.event_store = event_store
+# event_store ||= EventSourced::EventStores::MongoEventStore.new(aggregate_name: 'item')
+# Item.event_store = event_store
+
+FullItemRepository = EventSourced::Repository.new(
+  aggregate: Item,
+  store: EventSourced::EventStores::MongoEventStore.new(
+    aggregate_name: 'InventoryItem',
+    client: Mongo::Client.new(['127.0.0.1:27017'], database: 'es_examples')
+  )
+)
 
 class FullIntegrationTest < MiniTest::Test
-  let(:event_store) { Item.event_store }
+  let(:repository) { FullItemRepository }
+  let(:event_store) { FullItemRepository.store }
 
   let(:command_handler) {
     InventoryCommandHandler.new(Item)
