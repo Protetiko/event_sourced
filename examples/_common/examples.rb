@@ -65,6 +65,13 @@ def run_examples(example_description:, repository:)
   item.apply InventoryItemWithdrawn.new(INVENTORY_ITEM_WITHDRAWN)
   item.apply InventoryItemWithdrawn.new(INVENTORY_ITEM_WITHDRAWN)
   item.save
+
+  puts "\n## Full Event Stream:".white
+  repository.event_stream(AGGREGATE_ID).each {|e| puts "{ sequence_number: #{e.sequence_number} }" }
+
+  puts "\n## Partial Event Stream [4..12]:".white
+  repository.event_stream(AGGREGATE_ID, from: 4, to: 12).each {|e| puts "{ sequence_number: #{e.sequence_number} }" }
+
   # puts "\n## Should dump all commands:".white
   # command_repository.dump
   # puts "\n## Should dump all events:".white
@@ -95,4 +102,28 @@ def run_examples(example_description:, repository:)
 
   proj = ItemDescriptionProjection.new(repository.event_stream(AGGREGATE_ID))
   puts "Item Description Projection: #{proj.description}".green
+
+  puts "\n## Projection caching:".white
+  InventoryCountProjection.cache = EventSourced::Cache.new(namespace: "protetiko:#{InventoryCountProjection.name}")
+
+  proj = InventoryCountProjection.load(AGGREGATE_ID) do
+     puts "Cache miss"
+     repository.event_stream(AGGREGATE_ID)
+  end
+  puts "Inventory Count Projection: #{proj.entity.count}".green
+
+  proj = InventoryCountProjection.load(AGGREGATE_ID) do
+    puts "Cache miss"
+    repository.event_stream(AGGREGATE_ID)
+  end
+
+  puts "Inventory Count Projection: #{proj.entity.count}".green
+
+  puts "\n## Projection load and apply:".white
+  proj = InventoryCountProjection.load_and_apply(AGGREGATE_ID, InventoryItemWithdrawn.new(INVENTORY_ITEM_WITHDRAWN.merge(sequence_number: 19))) do
+    puts "Cache miss"
+    repository.event_stream(AGGREGATE_ID)
+  end
+  puts "Inventory Count Projection: #{proj.entity.count}".green
+
 end

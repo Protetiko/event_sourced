@@ -1,15 +1,20 @@
 # frozen_string_literal: true
 
 require 'semantic_logger'
-require 'zache'
 
-require 'event_sourced/cache_backends/zache_backend'
+require 'event_sourced/cache_backends/zache'
+require 'event_sourced/cache_backends/memory'
+require 'event_sourced/cache_backends/redis'
 
 require_relative '../_common/examples.rb'
 
 EventSourced.configure do |config|
   config.logger        = SemanticLogger
-  config.cache_backend = EventSourced::CacheBackends::Zache.new(client: Zache.new)
+  config.cache_backend = EventSourced::CacheBackends::Redis.new(
+    client: Redis.new
+  )
+  #config.cache_backend = EventSourced::CacheBackends::MemoryCache.new
+  #config.cache_backend = EventSourced::CacheBackends::Zache.new
 end
 
 InventoryItemRepository = EventSourced::Repository.new(

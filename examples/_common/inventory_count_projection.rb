@@ -3,6 +3,8 @@
 require 'event_sourced/projection'
 
 class InventoryCountProjection < EventSourced::Projection
+  include EventSourced::Projection::Cachable
+
   attr_reader :entity
 
   CountEntity = Struct.new(:id, :count)
