@@ -78,6 +78,11 @@ module EventSourced
       aggregate.load_from_events(stream(aggregate_id))
     end
 
+    def last_event(aggregate_id)
+      event = store.last_event(aggregate_id)
+      return EventSourced::Event::Factory.build!(event[:type], event)
+    end
+
     def raw_event_stream(aggregate_id, from: 0, to: nil)
       store.event_stream(aggregate_id, from: from, to: to)
     end
