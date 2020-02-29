@@ -35,7 +35,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'minitest-proveit', '~> 1.0.0'
   spec.add_development_dependency 'minitest-reporters', '~> 1.3.5'
   spec.add_development_dependency 'pry', '~> 0.12'
-  spec.add_development_dependency 'rake', '~> 10.0'
+  spec.add_development_dependency 'rake', '~> 13.0'
   spec.add_development_dependency 'redis', '~> 4.1.2'
   spec.add_development_dependency 'zache', '~> 0.12.0'
   spec.add_development_dependency 'semantic_logger', '~> 4.5.0'
