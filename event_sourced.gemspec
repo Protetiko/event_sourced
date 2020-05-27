@@ -40,7 +40,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'zache', '~> 0.12.0'
   spec.add_development_dependency 'semantic_logger', '~> 4.5.0'
 
-  spec.add_runtime_dependency 'activesupport', '~> 5.2.1'
+  spec.add_runtime_dependency 'activesupport', '>= 5.2.1', '< 6.1.0'
   spec.add_runtime_dependency 'dry-validation', '~> 0.12'
   spec.add_runtime_dependency 'mongo', '~> 2.6.2'
 end
