@@ -38,7 +38,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'pry',                '~> 0.13'
   spec.add_development_dependency 'rake',               '~> 13'
 
-  spec.add_runtime_dependency 'activesupport',   '~> 6'
+  spec.add_runtime_dependency 'activesupport',   '>= 6', '< 8'
   spec.add_runtime_dependency 'activerecord',    '~> 6'
   spec.add_runtime_dependency 'activemodel',     '~> 6'
   spec.add_runtime_dependency 'dry-validation',  '~> 1'
